@@ -1,0 +1,28 @@
+# MikroTik RouterOS
+#
+# RouterOS has no tcpdump, but it exports sFlow ("Traffic Flow" for NetFlow) and
+# fully supports SNMP. On the router:
+#   /snmp set enabled=yes
+#   /ip traffic-flow set enabled=yes target=<collector-ip>:2055 version=9
+#   /system sniffer set streaming-enabled=yes streaming-server=<collector-ip>
+
+device:
+  name: "mikrotik-1"
+  host: "192.0.2.40"
+  vendor: mikrotik
+
+credentials:
+  snmp_community: "${FLOWLITE_SNMP:-public}"
+
+capture:
+  source: folder      # or point sniffer streaming at a local TZSP receiver
+
+telemetry:
+  driver: snmp
+  interval_s: 60
+
+flowproto:
+  enabled: true
+  netflow:
+    enabled: true
+    port: 2055

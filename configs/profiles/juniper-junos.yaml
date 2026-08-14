@@ -1,0 +1,37 @@
+# Juniper Junos
+#
+# On the device:
+#   set system services netconf ssh
+#   set forwarding-options port-mirroring ...
+#   set services flow-monitoring version-ipfix template ...
+#
+# Junos gives a real shell via `start shell`, and tcpdump is present on most
+# platforms, so SSH capture works directly.
+
+device:
+  name: "junos-1"
+  host: "192.0.2.13"
+  vendor: juniper
+
+credentials:
+  username: "${FLOWLITE_USER:-flowlite}"
+  password: "${FLOWLITE_PASS:-}"
+  snmp_community: "${FLOWLITE_SNMP:-}"
+
+capture:
+  source: ssh
+  ssh:
+    interface: "em0"
+    command: "start shell command \"tcpdump -i {interface} -U -w - -n\""
+
+telemetry:
+  driver: snmp
+  interval_s: 60
+  snmp:
+    version: "2c"
+
+flowproto:
+  enabled: true
+  netflow:
+    enabled: true
+    port: 2055     # Junos IPFIX is detected automatically

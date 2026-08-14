@@ -1,0 +1,32 @@
+# Any managed switch, router, firewall or load balancer
+#
+# The most portable configuration FlowLite has. SNMP IF-MIB is supported by
+# effectively every managed network device ever shipped, and the folder capture
+# source ingests capture files from wherever you can get them.
+#
+# Start here when your platform has no dedicated profile.
+
+device:
+  name: "switch-1"
+  host: "192.0.2.20"
+  vendor: generic
+
+credentials:
+  snmp_community: "${FLOWLITE_SNMP:-public}"
+
+capture:
+  source: folder
+  folder:
+    watch_dir: "./data/incoming"
+    stable_seconds: 10
+
+telemetry:
+  driver: snmp
+  interval_s: 60
+  snmp:
+    version: "2c"
+    collect_high_capacity: true
+    tables: []          # add "arp", "mac" or "routes" if the device supports them
+
+flowproto:
+  enabled: false

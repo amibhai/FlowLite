@@ -1,0 +1,46 @@
+# Arista EOS
+#
+# EOS drops SSH sessions into the CLI, not a shell, so the capture command must
+# be wrapped in `bash -c`. eAPI gives richer data than SNMP here, but SNMP works
+# too and needs no API enablement.
+#
+# On the switch:
+#   management api http-commands
+#      no shutdown
+#   monitor session 1 source interface Ethernet1-48
+#   monitor session 1 destination interface Ethernet49
+#   username flowlite privilege 15 role network-admin secret <password>
+
+device:
+  name: "eos-core-1"
+  host: "192.0.2.10"
+  vendor: arista
+
+credentials:
+  username: "${FLOWLITE_USER:-flowlite}"
+  password: "${FLOWLITE_PASS:-}"
+  snmp_community: "${FLOWLITE_SNMP:-}"
+
+capture:
+  source: ssh
+  rotate_seconds: 3600
+  ssh:
+    interface: "Ethernet49"
+    capture_tool: tcpdump
+    command: "bash -c 'tcpdump -i {interface} -U -w - -n'"
+
+telemetry:
+  driver: eapi
+  interval_s: 60
+  http:
+    scheme: https
+    verify_tls: true
+    # EOS ships a self-signed certificate. Either export it and point ca_bundle
+    # at it, or set verify_tls: false if you accept the risk on a managed network.
+    ca_bundle: ""
+
+flowproto:
+  enabled: true
+  sflow:
+    enabled: true
+    port: 6343

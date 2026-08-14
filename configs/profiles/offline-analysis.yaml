@@ -1,0 +1,39 @@
+# Offline / forensic analysis
+#
+# No device at all: drop capture files into the watch directory (or run
+# `flowlite process <file>`) and get flows, host profiles and a time series.
+# Nothing here needs credentials, privileges or a network connection.
+
+instance: offline
+
+device:
+  name: "offline"
+
+capture:
+  source: folder
+  folder:
+    watch_dir: "./data/incoming"
+    stable_seconds: 2
+    reprocess_existing: true
+    delete_after_processing: false
+
+telemetry:
+  enabled: false
+  driver: none
+
+flowproto:
+  enabled: false
+
+analytics:
+  flow:
+    # Offline captures are already bounded, so keep flows whole rather than
+    # cutting them at an exporter-style active timeout.
+    active_timeout_s: 86400
+    idle_timeout_s: 3600
+  host_profiles:
+    window_minutes: 5
+  network_ts:
+    bucket_seconds: 10
+
+retention:
+  enabled: false

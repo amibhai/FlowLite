@@ -1,0 +1,39 @@
+# A Linux host, router or virtual appliance
+#
+# Captures locally with tcpdump and reads interface counters over SSH from
+# /proc/net/dev, which needs nothing installed on the target beyond an SSH
+# server. Grant capture rights without root:
+#   sudo setcap cap_net_raw,cap_net_admin+eip $(which tcpdump)
+
+device:
+  name: "gateway"
+  host: "192.0.2.30"
+  vendor: linux
+
+credentials:
+  username: "${FLOWLITE_USER:-monitor}"
+  ssh_key_file: "~/.ssh/id_ed25519"
+
+capture:
+  source: local
+  local:
+    interface: "eth0"
+    tool: auto
+    bpf_filter: "not (host 192.0.2.30 and port 22)"
+
+telemetry:
+  driver: ssh_cli
+  interval_s: 60
+  ssh_cli:
+    commands:
+      - name: interfaces
+        command: "cat /proc/net/dev"
+        scope: interface
+        regex: '^\s*(?P<if_name>[\w.@-]+):\s*(?P<in_octets>\d+)\s+(?P<in_packets>\d+)\s+(?P<in_errors>\d+)\s+(?P<in_discards>\d+)(?:\s+\d+){4}\s+(?P<out_octets>\d+)\s+(?P<out_packets>\d+)\s+(?P<out_errors>\d+)\s+(?P<out_discards>\d+)'
+      - name: load
+        command: "cat /proc/loadavg /proc/uptime"
+        scope: device
+        regex: '(?P<cpu_percent>[\d.]+)\s+[\d.]+\s+[\d.]+\s+\d+/\d+\s+\d+\s+(?P<uptime_s>[\d.]+)'
+
+flowproto:
+  enabled: false

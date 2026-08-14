@@ -1,0 +1,38 @@
+# Cisco IOS-XE (Catalyst, ISR, ASR)
+#
+# On the device:
+#   restconf
+#   ip http secure-server
+#   flow exporter FLOWLITE
+#     destination <collector-ip>
+#     transport udp 2055
+#     export-protocol netflow-v9
+#
+# IOS-XE cannot stream a packet capture over SSH usefully, so pair NetFlow
+# export with either a SPAN port into this host or no packet capture at all.
+
+device:
+  name: "iosxe-1"
+  host: "192.0.2.12"
+  vendor: cisco
+
+credentials:
+  username: "${FLOWLITE_USER:-flowlite}"
+  password: "${FLOWLITE_PASS:-}"
+
+capture:
+  source: none
+
+telemetry:
+  driver: restconf
+  interval_s: 60
+  http:
+    scheme: https
+    verify_tls: false
+    base_path: "/restconf/data"
+
+flowproto:
+  enabled: true
+  netflow:
+    enabled: true
+    port: 2055

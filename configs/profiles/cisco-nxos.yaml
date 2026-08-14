@@ -1,0 +1,39 @@
+# Cisco Nexus (NX-OS)
+#
+# On the switch:
+#   feature nxapi
+#   monitor session 1
+#     source interface Ethernet1/1-48 both
+#     destination interface Ethernet1/49
+#     no shut
+#
+# NX-OS has an on-box `ethanalyzer` but it is rate-limited and unsuitable for
+# bulk capture, so mirror to a collector NIC and use capture.source: local.
+
+device:
+  name: "nexus-1"
+  host: "192.0.2.11"
+  vendor: cisco
+
+credentials:
+  username: "${FLOWLITE_USER:-flowlite}"
+  password: "${FLOWLITE_PASS:-}"
+
+capture:
+  source: local
+  local:
+    interface: "eth1"      # the NIC patched to the SPAN destination
+    tool: auto
+
+telemetry:
+  driver: nxapi
+  interval_s: 60
+  http:
+    scheme: https
+    verify_tls: false      # NX-API defaults to a self-signed certificate
+
+flowproto:
+  enabled: true
+  netflow:
+    enabled: true
+    port: 2055

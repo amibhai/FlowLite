@@ -1,0 +1,221 @@
+# ============================================================================
+#  FlowLite configuration
+#
+#  Every key below is optional: FlowLite merges this file over a complete set
+#  of defaults, so anything you leave out simply keeps its default value and
+#  nothing can crash for want of a key. Run `flowlite config` to see the
+#  effective configuration, and `flowlite doctor` to validate it.
+#
+#  Secrets: any string may reference the environment as ${VAR} or
+#  ${VAR:-fallback}. Prefer that over writing passwords into this file.
+# ============================================================================
+
+instance: flowlite
+
+# ---------------------------------------------------------------------------
+# The device being monitored. Purely descriptive except for `host`, which the
+# capture and telemetry drivers inherit unless they override it themselves.
+# ---------------------------------------------------------------------------
+device:
+  name: ""                 # friendly name used in every output row
+  host: ""                 # management IP or hostname
+  vendor: generic          # free text; for your own records
+  description: ""
+
+credentials:
+  username: "${FLOWLITE_USER:-}"
+  password: "${FLOWLITE_PASS:-}"
+  ssh_key_file: ""
+  ssh_key_passphrase: "${FLOWLITE_KEY_PASS:-}"
+  snmp_community: "${FLOWLITE_SNMP:-}"
+
+# ---------------------------------------------------------------------------
+# Packet capture
+#
+#   folder  watch a directory for capture files (default; works with anything)
+#   local   capture from a NIC on this machine, fed by a SPAN/mirror/TAP port
+#   ssh     run a capture tool on the device itself and stream it back
+#   none    no packet capture (telemetry and/or sFlow/NetFlow only)
+# ---------------------------------------------------------------------------
+capture:
+  source: folder
+  rotate_seconds: 3600     # start a new capture file this often
+  max_file_mb: 4096        # ...or at this size, whichever comes first
+  queue_depth: 64          # capture files awaiting analysis before back-pressure
+  retry_initial_s: 5
+  retry_max_s: 300
+
+  folder:
+    watch_dir: ""          # defaults to <data_dir>/incoming
+    patterns: ["*.pcap", "*.pcapng", "*.pcap.gz", "*.pcapng.gz"]
+    poll_interval_s: 5
+    stable_seconds: 10     # a file must stop changing for this long first
+    recursive: true
+    delete_after_processing: false
+    reprocess_existing: true
+
+  local:
+    interface: ""          # e.g. eth1 -- the NIC receiving the mirror
+    tool: auto             # auto | tcpdump | dumpcap | tshark
+    bpf_filter: ""         # e.g. "not port 22"
+    snaplen: 0             # 0 = full packets
+    extra_args: []         # appended verbatim to the capture command
+
+  ssh:
+    host: ""               # defaults to device.host
+    port: 22
+    username: ""           # defaults to credentials.username
+    password: ""           # defaults to credentials.password (needs paramiko)
+    key_file: ""
+    host_key_policy: accept-new    # strict | accept-new | ignore
+    known_hosts_file: ""
+    interface: any         # interface name ON THE DEVICE
+    bpf_filter: ""
+    snaplen: 0
+    capture_tool: tcpdump  # tcpdump | tshark | dumpcap
+    sudo: false
+    # Override the whole command when a platform needs a shell wrapper or a
+    # different tool. Placeholders: {interface} {filter} {snaplen}
+    # See configs/profiles/ for ready-made lines per platform.
+    command: ""
+    connect_timeout_s: 30
+    read_timeout_s: 30
+
+# ---------------------------------------------------------------------------
+# Device telemetry
+#
+#   snmp      IF-MIB over SNMP v1/v2c -- works with essentially every device
+#   restconf  RFC 8040 + ietf-interfaces
+#   eapi      Arista EOS
+#   nxapi     Cisco NX-OS
+#   ssh_cli   arbitrary CLI commands parsed with your own regexes
+#   none      disabled
+# ---------------------------------------------------------------------------
+telemetry:
+  enabled: true
+  driver: none
+  interval_s: 60
+  timeout_s: 10
+
+  snmp:
+    host: ""               # defaults to device.host
+    port: 161
+    version: "2c"          # 1 | 2c
+    community: ""          # defaults to credentials.snmp_community
+    max_repetitions: 25
+    retries: 2
+    collect_interface_names: true
+    collect_high_capacity: true    # 64-bit ifXTable counters when available
+    tables: []             # extra walks: arp, mac, routes (each costs a walk)
+
+  http:                    # used by restconf, eapi and nxapi
+    host: ""
+    scheme: https
+    port: 0                # 0 = scheme default
+    verify_tls: true
+    ca_bundle: ""          # path to the device certificate or its CA
+    base_path: ""          # override the API root if the platform differs
+    username: ""
+    password: ""
+
+  ssh_cli:
+    host: ""
+    port: 22
+    username: ""
+    password: ""
+    key_file: ""
+    host_key_policy: accept-new
+    commands: []
+      # - name: interfaces
+      #   command: "show interface counters"
+      #   scope: interface
+      #   regex: '^(?P<if_name>\S+)\s+(?P<in_octets>\d+)\s+(?P<out_octets>\d+)'
+
+# ---------------------------------------------------------------------------
+# sFlow / NetFlow / IPFIX collectors
+# ---------------------------------------------------------------------------
+flowproto:
+  enabled: false
+  flush_interval_s: 60
+  max_queue: 200000
+  recv_buffer_bytes: 4194304
+
+  sflow:
+    enabled: false
+    bind: "0.0.0.0"
+    port: 6343
+    sample_csv: true       # write individual flow samples, not just counters
+
+  netflow:
+    enabled: false
+    bind: "0.0.0.0"
+    port: 2055             # v5, v9 and IPFIX are detected automatically
+    template_ttl_s: 3600
+
+# ---------------------------------------------------------------------------
+# Analysis
+# ---------------------------------------------------------------------------
+analytics:
+  flow:
+    active_timeout_s: 300      # cut long-lived flows into records this size
+    idle_timeout_s: 60         # a silent flow is closed after this
+    burst_gap_s: 1.0           # gap that separates an active burst from idle
+    max_flows_in_memory: 250000
+    max_packets_per_flow: 20000
+    min_packets_per_flow: 1
+
+  host_profiles:
+    enabled: true
+    window_minutes: 10
+
+  network_ts:
+    enabled: true
+    bucket_seconds: 60
+
+enrich:
+  classify_addresses: true      # private / public / cgnat / multicast / ...
+  geoip:
+    enabled: false
+    asn_db: ""                  # e.g. /usr/share/GeoIP/GeoLite2-ASN.mmdb
+    city_db: ""
+
+# ---------------------------------------------------------------------------
+# Where everything goes. Leave the derived entries empty to place them under
+# data_dir automatically.
+# ---------------------------------------------------------------------------
+paths:
+  data_dir: "./data"
+  incoming_dir: ""       # <data_dir>/incoming
+  pcap_dir: ""           # <data_dir>/pcap
+  flows_dir: ""          # <data_dir>/flows
+  profiles_dir: ""       # <data_dir>/host_profiles
+  network_ts: ""         # <data_dir>/network_ts.csv
+  telemetry_csv: ""      # <data_dir>/telemetry/device_telemetry.csv
+  interfaces_csv: ""     # <data_dir>/telemetry/interface_counters.csv
+  sflow_csv: ""          # <data_dir>/flowproto/sflow_samples.csv
+  netflow_csv: ""        # <data_dir>/flowproto/netflow_records.csv
+  logs_dir: ""           # <data_dir>/logs
+  state_dir: ""          # <data_dir>/state
+
+retention:
+  enabled: true
+  pcap_days: 7
+  csv_days: 30
+  max_data_dir_gb: 0     # 0 = no size cap; otherwise delete oldest captures
+  protect: ["network_ts.csv"]
+
+runtime:
+  dashboard: auto        # auto | on | off
+  restart_backoff_s: [5, 15, 60, 300]
+  max_restarts: 0        # 0 = unlimited
+  health_file: ""        # e.g. ./data/health.json for external monitoring
+  pid_file: ""           # e.g. ./data/flowlite.pid; blocks a second instance
+  shutdown_grace_s: 30
+
+logging:
+  level: INFO            # console level
+  file_level: DEBUG
+  console: true
+  max_bytes: 10485760
+  backups: 5
+  format: text           # text | json
