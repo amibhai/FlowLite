@@ -65,7 +65,7 @@ system packages (Zeek, tshark, nfdump, sflowtool). FlowLite assumes none of that
 ## Installation
 
 ```bash
-git clone https://github.com/Swastik-Dubey/FlowLite.git
+git clone https://github.com/amibhai/FlowLite.git
 cd FlowLite
 pip install -e .
 ```

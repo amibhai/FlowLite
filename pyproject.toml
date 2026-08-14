@@ -49,9 +49,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Swastik-Dubey/FlowLite"
-Repository = "https://github.com/Swastik-Dubey/FlowLite"
-Issues = "https://github.com/Swastik-Dubey/FlowLite/issues"
+Homepage = "https://github.com/amibhai/FlowLite"
+Repository = "https://github.com/amibhai/FlowLite"
+Issues = "https://github.com/amibhai/FlowLite/issues"
 
 [project.scripts]
 flowlite = "flowlite.cli:main"
