@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flowlite"
+version = "2.0.0"
+description = "Vendor-neutral network flow telemetry pipeline: packet capture, flow features, device telemetry and sFlow/NetFlow/IPFIX collection from any switch."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "FlowLite contributors" }]
+keywords = [
+    "netflow", "ipfix", "sflow", "snmp", "pcap", "network-monitoring",
+    "flow-features", "network-telemetry", "nids",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Networking :: Monitoring",
+]
+
+# The core pipeline runs on the standard library alone. Everything below is
+# optional and degrades gracefully when absent -- see `flowlite doctor`.
+dependencies = []
+
+[project.optional-dependencies]
+yaml = ["PyYAML>=5.1"]
+ssh = ["paramiko>=2.9"]
+geoip = ["geoip2>=4.0"]
+speed = ["numpy>=1.20"]
+# Everything a production deployment normally wants.
+full = ["PyYAML>=5.1", "paramiko>=2.9", "geoip2>=4.0", "numpy>=1.20"]
+dev = [
+    "PyYAML>=5.1",
+    "numpy>=1.20",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/Swastik-Dubey/FlowLite"
+Repository = "https://github.com/Swastik-Dubey/FlowLite"
+Issues = "https://github.com/Swastik-Dubey/FlowLite/issues"
+
+[project.scripts]
+flowlite = "flowlite.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+flowlite = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning:flowlite.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = [
+    # FlowLite supports Python 3.9, and annotations are written with the
+    # `typing` aliases throughout for one consistent style across the codebase.
+    # `from __future__ import annotations` makes them free at runtime.
+    "UP006",  # typing.Dict -> dict
+    "UP035",  # deprecated typing imports
+    "UP045",  # Optional[X] -> X | None
+    # `try/except: pass` is used in cleanup paths and in the packet decode hot
+    # path, where contextlib.suppress adds a context-manager call per packet.
+    "SIM105",
+    "B008",   # function call in default argument
+    "SIM108", # ternary instead of if/else
+]
+
+[tool.coverage.run]
+source = ["flowlite"]
+branch = true
