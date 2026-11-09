@@ -46,6 +46,7 @@ PyPy 3.11 interpreter. The analysis scripts need `pandas`, `pyarrow`, `scikit-le
 | `build_tables.py` | Labelled feature tables for FlowLite, NFStream and CIC's CICFlowMeter CSVs | RQ3 |
 | `ml.py` | Random forest / extra-trees, stratified 5-fold CV, de-duplicated runs, group ablation | RQ3 |
 | `rq4.py` | Direction consistency, CIC label/direction analysis, teardown-tail counts | RQ4 |
+| `ml_nograce.py` | Random forest on flows extracted with the teardown grace period disabled (`extract.py --teardown-grace 0`, then `build_tables.py flowlite tables/flowlite_nograce.parquet ...`) | RQ4 |
 | `figures.py`, `make_numbers.py` | Figures 2-3 and `paper/numbers.tex`; `make_numbers.py` also reads the parquet tables written by `build_tables.py` (RQ4 macros), so run it last | all |
 | `prototype/` | The earlier dpkt-based prototype, restored from git history, used as a baseline | RQ2 |
 
@@ -59,7 +60,9 @@ if needed.
 2. `reference_check.py`, `encap_check.py`, `mem_per_flow.py` (RQ1, Sect. 3.3).
 3. `run_bench.py` for every extractor and capture, `make_flood.py` + `run_bench.py` on the flood,
    `parallel_scale.py` (RQ2).
-4. `build_tables.py`, then `ml.py main`, `ml.py ablation` and `rq4.py` (RQ3, RQ4).
+4. `build_tables.py`, then `ml.py main`, `ml.py ablation` and `rq4.py` (RQ3, RQ4); for the
+   no-grace comparison, extract both days with `--teardown-grace 0`, build
+   `tables/flowlite_nograce.parquet` and run `ml_nograce.py results/ml_nograce.json`.
 5. `figures.py memory`, `figures.py ablation` and `make_numbers.py`.
 
 ## Notes on the measurements

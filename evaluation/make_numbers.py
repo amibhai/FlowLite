@@ -211,8 +211,8 @@ if proto_full is not None:
 # the benchmark's 20 ms sampling can miss short peaks.
 wset = [load(os.path.join(RES, "fullday", f"final_fl_{d}.json"))["peak_mb"] for d in ("fri", "wed")]
 m("FLwsetMax", str(math.ceil(max(wset))))  # an upper bound, so round up
-fl_rates = [kpps("flowlite", r, n) for r, n in SLICES + FULL
-            + [("fri_500k", 500_000), ("fri_2000k", 2_000_000)] if kpps("flowlite", r, n)]
+# range over the CPython 3.14 cells of Table 3, so the text can be checked against the table
+fl_rates = [kpps("flowlite", r, n) for r, n in SLICES + FULL if kpps("flowlite", r, n)]
 m("FLkppsMin", f"{min(fl_rates):.0f}")
 m("FLkppsMax", f"{max(fl_rates):.0f}")
 nf_full = [kpps("nfstream", r, n) for r, n in FULL]
@@ -309,9 +309,13 @@ if os.path.exists(ml_path):
         pc = {c: v for c, v in r["per_class_f1"].items() if c not in ("Heartbleed", "Bot")}
         return sum(pc.values()) / len(pc)
 
+    seven = {}
     for key, tag in (("FlowLite (all) | RF", "FL"), ("CICFlowMeter (CIC CSV) | RF", "CIC"),
                      ("NFStream (statistical) | RF", "NF")):
-        m(f"{tag}SevenMacro", f"{macro7(ml[key]):.4f}")
+        seven[tag] = macro7(ml[key])
+        m(f"{tag}SevenMacro", f"{seven[tag]:.4f}")
+    m("SevenSpread", f"{max(seven.values()) - min(seven.values()):.4f}")
+    m("SevenLeadCIC", f"{seven['FL'] - seven['CIC']:.4f}")
     m("FLhbFlows", ml["FlowLite (all) | RF"]["support"]["Heartbleed"])
     m("CIChbFlows", ml["CICFlowMeter (CIC CSV) | RF"]["support"]["Heartbleed"])
     m("NFOn", ml["NetFlow-observable subset | RF"]["n_features"])
@@ -352,6 +356,24 @@ if os.path.exists(ml_path):
         pl.append(f"{c} & " + " & ".join(cells) + " \\\\")
     pl += ["\\bottomrule", "\\end{tabular}"]
     macros["ClassTable"] = "\n".join(pl)
+
+# RQ4: detection with the teardown grace period disabled (ml_nograce.py)
+ng_path = os.path.join(RES, "ml_nograce.json")
+if os.path.exists(ng_path):
+    ng = load(ng_path)
+
+    def eight(r):  # macro-F1 over the eight classes other than Heartbleed
+        pc = {c: v for c, v in r["per_class_f1"].items() if c != "Heartbleed"}
+        return sum(pc.values()) / len(pc)
+
+    r = ng["FlowLite (all), no grace | RF"]
+    m("NoGraceEightMacro", f"{eight(r):.4f}")
+    m("NoGraceFPR", f"{100 * r['benign_fpr']['mean']:.3f}")
+    m("NoGraceBotFone", f"{r['per_class_f1']['Bot']:.3f}")
+    m("NoGraceFlows", fmt_int(r["n_flows"]))
+    rd = ng["FlowLite (all), no grace dedup | RF"]
+    m("NoGraceDedupEightMacro", f"{eight(rd):.4f}")
+    m("NoGraceDedupKept", f"{100 * rd['n_flows'] / rd['n_before_dedup']:.1f}")
 
 abl_path = os.path.join(RES, "ml_ablation.json")
 if os.path.exists(abl_path):
@@ -420,6 +442,7 @@ if os.path.exists(rq4_path):
     last_cic_bot = cic_bot.loc[cic_bot["cic_label"] == "Bot", "id_start_epoch"].max()
     late = bot[bot["id_start_epoch"] > last_cic_bot + 60]  # CIC stamps have minute resolution
     m("FLbotLate", fmt_int(len(late)))
+    m("FLbotLatePct", f"{100 * len(late) / len(bot):.0f}")
     m("FLbotLateNoPayloadPct", f"{100 * (late['total_bytes'] == 0).mean():.0f}")
     refused = bot[(bot["total_packets"] == 2) & (bot["syn_count"] >= 1) & (bot["rst_count"] >= 1)]
     m("FLbotRefusedPct", f"{100 * len(refused) / len(bot):.0f}")

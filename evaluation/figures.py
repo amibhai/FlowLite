@@ -94,7 +94,7 @@ def style(ax):
 
 def fig_memory():
     data = load_bench()
-    fig, (a, b) = plt.subplots(1, 2, figsize=(122 * MM, 46 * MM), constrained_layout=True)
+    fig, (a, b) = plt.subplots(1, 2, figsize=(122 * MM, 42 * MM), constrained_layout=True)
     for tool, (label, colour, marker, ls) in TOOLS.items():
         if tool not in data:
             continue
@@ -147,7 +147,7 @@ def fig_ablation():
     only = [only[i] for i in order]
     # Bars stay unlabelled (they are too thin to carry text); the exact values sit in a
     # two-column table to the right of the plot, in ink colour.
-    fig = plt.figure(figsize=(122 * MM, 48 * MM))
+    fig = plt.figure(figsize=(122 * MM, 45 * MM))
     ax = fig.add_axes([0.16, 0.30, 0.62, 0.62])
     y = range(len(groups))
     h = 0.38

@@ -1,0 +1,187 @@
+{
+ "FlowLite (all), no grace | RF": {
+  "macro_f1": {
+   "mean": 0.9572283012070131,
+   "std": 0.04377282771800558
+  },
+  "weighted_f1": {
+   "mean": 0.9983693762262297,
+   "std": 8.901772703343773e-05
+  },
+  "accuracy": {
+   "mean": 0.9984111246992619,
+   "std": 8.462714719786973e-05
+  },
+  "benign_fpr": {
+   "mean": 8.1537128294006e-05,
+   "std": 2.748297315041317e-05
+  },
+  "attack_dr": {
+   "mean": 0.9987808399282884,
+   "std": 5.97553073910529e-05
+  },
+  "fit_s": {
+   "mean": 44.221154200000456,
+   "std": 1.5953694150438584
+  },
+  "predict_s": {
+   "mean": 0.7769992000074126,
+   "std": 0.018966271728243365
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9995015774346342,
+   "Bot": 0.9301539314296778,
+   "DDoS": 0.9999895577716214,
+   "DoS GoldenEye": 0.996473095603811,
+   "DoS Hulk": 0.997924995700578,
+   "DoS Slowhttptest": 0.933481762675935,
+   "DoS slowloris": 0.9577944315506605,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9997353586962003
+  },
+  "support": {
+   "BENIGN": 797183,
+   "Bot": 5508,
+   "DDoS": 95767,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 313852,
+   "DoS Slowhttptest": 6786,
+   "DoS slowloris": 7490,
+   "Heartbleed": 5,
+   "PortScan": 160579
+  },
+  "n_features": 74,
+  "n_flows": 1395956,
+  "features": [
+   "protocol",
+   "duration_s",
+   "total_packets",
+   "fwd_packets",
+   "bwd_packets",
+   "total_bytes",
+   "fwd_bytes",
+   "bwd_bytes",
+   "total_frame_bytes",
+   "fwd_frame_bytes",
+   "bwd_frame_bytes",
+   "packets_per_s",
+   "bytes_per_s",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s",
+   "pkt_len_mean",
+   "pkt_len_std",
+   "pkt_len_min",
+   "pkt_len_max",
+   "pkt_len_var",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_min",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_min",
+   "bwd_pkt_len_max",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_min",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_min",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_min",
+   "bwd_iat_max",
+   "active_mean",
+   "active_std",
+   "active_max",
+   "active_count",
+   "idle_mean",
+   "idle_std",
+   "idle_max",
+   "idle_count",
+   "syn_count",
+   "fin_count",
+   "rst_count",
+   "psh_count",
+   "ack_count",
+   "urg_count",
+   "ece_count",
+   "cwr_count",
+   "syn_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "ack_ratio",
+   "urg_ratio",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "tcp_handshake_ms",
+   "ttl_mean",
+   "ttl_std",
+   "ttl_min",
+   "ttl_max",
+   "fragment_packets",
+   "down_up_byte_ratio",
+   "fwd_bwd_packet_ratio",
+   "byte_asymmetry"
+  ]
+ },
+ "FlowLite (all), no grace dedup | RF": {
+  "macro_f1": {
+   "mean": 0.9712979220325637,
+   "std": 0.04442090011923466
+  },
+  "weighted_f1": {
+   "mean": 0.9995778840298064,
+   "std": 3.216205157550699e-05
+  },
+  "accuracy": {
+   "mean": 0.999578909242046,
+   "std": 3.26739484714415e-05
+  },
+  "benign_fpr": {
+   "mean": 0.00010684740104854992,
+   "std": 4.4413065846452006e-05
+  },
+  "attack_dr": {
+   "mean": 0.9995446098105468,
+   "std": 8.731386514263003e-05
+  },
+  "fit_s": {
+   "mean": 31.940079860005063,
+   "std": 1.2261928516168203
+  },
+  "predict_s": {
+   "mean": 0.5195502799993846,
+   "std": 0.03277741634130657
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998356287096672,
+   "Bot": 0.9760537282408774,
+   "DDoS": 0.9999686498536731,
+   "DoS GoldenEye": 0.9961868113817905,
+   "DoS Hulk": 0.9998179070875548,
+   "DoS Slowhttptest": 0.9875313376506455,
+   "DoS slowloris": 0.984911275240029,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9973759601288364
+  },
+  "support": {
+   "BENIGN": 608344,
+   "Bot": 2394,
+   "DDoS": 95698,
+   "DoS GoldenEye": 7998,
+   "DoS Hulk": 172994,
+   "DoS Slowhttptest": 5866,
+   "DoS slowloris": 4437,
+   "Heartbleed": 5,
+   "PortScan": 7057
+  },
+  "n_features": 74,
+  "n_flows": 904793,
+  "n_before_dedup": 1395956
+ }
+}
