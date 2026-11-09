@@ -1,0 +1,84 @@
+{
+  "tool": "flowlite",
+  "pcap": "slices/fri_250k.pcap",
+  "pcap_bytes": 243691308,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 3.187077400041744,
+      "cpu_s_lastsample": 2.015625,
+      "peak_rss_mb": 21.5546875,
+      "child": {
+        "flows": 6195,
+        "packets": 250000,
+        "decoded": 248063,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 6195,
+          "in_memory": 0,
+          "expired_idle": 4270,
+          "expired_active": 8,
+          "expired_packet_cap": 3,
+          "closed_teardown": 1419,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 1777
+        }
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 3.0532060000114143,
+      "cpu_s_lastsample": 1.921875,
+      "peak_rss_mb": 21.453125,
+      "child": {
+        "flows": 6195,
+        "packets": 250000,
+        "decoded": 248063,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 6195,
+          "in_memory": 0,
+          "expired_idle": 4270,
+          "expired_active": 8,
+          "expired_packet_cap": 3,
+          "closed_teardown": 1419,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 1777
+        }
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 3.0723728999728337,
+      "cpu_s_lastsample": 1.828125,
+      "peak_rss_mb": 21.45703125,
+      "child": {
+        "flows": 6195,
+        "packets": 250000,
+        "decoded": 248063,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 6195,
+          "in_memory": 0,
+          "expired_idle": 4270,
+          "expired_active": 8,
+          "expired_packet_cap": 3,
+          "closed_teardown": 1419,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 1777
+        }
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

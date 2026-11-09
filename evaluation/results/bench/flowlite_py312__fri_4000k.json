@@ -1,0 +1,84 @@
+{
+  "tool": "flowlite_py312",
+  "pcap": "C:/flowlite_slices/fri_4000k.pcap",
+  "pcap_bytes": 4722566158,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 46.100240999949165,
+      "cpu_s_lastsample": 17.984375,
+      "peak_rss_mb": 26.53125,
+      "child": {
+        "flows": 48169,
+        "packets": 4000000,
+        "decoded": 3991482,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 48169,
+          "in_memory": 0,
+          "expired_idle": 32343,
+          "expired_active": 162,
+          "expired_packet_cap": 148,
+          "closed_teardown": 14179,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 18147
+        }
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 47.034815500024706,
+      "cpu_s_lastsample": 15.34375,
+      "peak_rss_mb": 26.51953125,
+      "child": {
+        "flows": 48169,
+        "packets": 4000000,
+        "decoded": 3991482,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 48169,
+          "in_memory": 0,
+          "expired_idle": 32343,
+          "expired_active": 162,
+          "expired_packet_cap": 148,
+          "closed_teardown": 14179,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 18147
+        }
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 46.37617619999219,
+      "cpu_s_lastsample": 19.109375,
+      "peak_rss_mb": 26.359375,
+      "child": {
+        "flows": 48169,
+        "packets": 4000000,
+        "decoded": 3991482,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 48169,
+          "in_memory": 0,
+          "expired_idle": 32343,
+          "expired_active": 162,
+          "expired_packet_cap": 148,
+          "closed_teardown": 14179,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 18147
+        }
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

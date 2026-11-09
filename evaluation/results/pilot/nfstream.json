@@ -1,0 +1,20 @@
+{
+  "tool": "nfstream",
+  "pcap": "slices/fri_250k.pcap",
+  "pcap_bytes": 243691308,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 3.9340361000504345,
+      "cpu_s_lastsample": 0.46875,
+      "peak_rss_mb": 149.2265625,
+      "child": {
+        "flows": 6188,
+        "columns": 77
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

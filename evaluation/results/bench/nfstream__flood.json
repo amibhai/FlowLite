@@ -1,0 +1,20 @@
+{
+  "tool": "nfstream",
+  "pcap": "C:/flowlite_out/synflood_2m.pcap",
+  "pcap_bytes": 140000024,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 161.05866500001866,
+      "cpu_s_lastsample": 101.40625,
+      "peak_rss_mb": 4879.6328125,
+      "child": {
+        "flows": 2000000,
+        "columns": 77
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

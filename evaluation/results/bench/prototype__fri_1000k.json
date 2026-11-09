@@ -1,0 +1,42 @@
+{
+  "tool": "prototype",
+  "pcap": "slices/fri_1000k.pcap",
+  "pcap_bytes": 1175749162,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 16.506502100033686,
+      "cpu_s_lastsample": 12.28125,
+      "peak_rss_mb": 472.546875,
+      "child": {
+        "flows": 8359,
+        "columns": 43
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 16.702397900051437,
+      "cpu_s_lastsample": 10.328125,
+      "peak_rss_mb": 472.34765625,
+      "child": {
+        "flows": 8359,
+        "columns": 43
+      },
+      "stderr_tail": ""
+    },
+    {
+      "returncode": 0,
+      "wall_s": 17.030668599996716,
+      "cpu_s_lastsample": 11.1875,
+      "peak_rss_mb": 472.32421875,
+      "child": {
+        "flows": 8359,
+        "columns": 43
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

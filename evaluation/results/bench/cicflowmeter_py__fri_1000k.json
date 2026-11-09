@@ -1,0 +1,20 @@
+{
+  "tool": "cicflowmeter_py",
+  "pcap": "slices/fri_1000k.pcap",
+  "pcap_bytes": 1175749162,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 434.8254079000326,
+      "cpu_s_lastsample": 287.34375,
+      "peak_rss_mb": 2915.328125,
+      "child": {
+        "flows": 21563,
+        "columns": 82
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

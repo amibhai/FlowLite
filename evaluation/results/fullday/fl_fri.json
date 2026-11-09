@@ -1,0 +1,54 @@
+{
+  "tool": "flowlite-v2",
+  "flowlite_version": "2.1.0",
+  "python": "3.14.6",
+  "pcap": "pcap/Friday-WorkingHours.pcap",
+  "pcap_bytes": 8839309056,
+  "params": {
+    "active_timeout_s": 300.0,
+    "idle_timeout_s": 60.0,
+    "burst_gap_s": 1.0,
+    "max_flows": 250000,
+    "min_packets": 1,
+    "max_packets_per_flow": 20000,
+    "teardown_grace_s": 5.0
+  },
+  "csv": true,
+  "packets_total": 9997874,
+  "packets_decoded": 9944187,
+  "packets_skipped": 53687,
+  "flows": 545051,
+  "expiry_reasons": {
+    "teardown": 347173,
+    "idle-timeout": 196637,
+    "active-timeout": 951,
+    "packet-cap": 152,
+    "end-of-capture": 138
+  },
+  "table_stats": {
+    "emitted": 545051,
+    "in_memory": 0,
+    "expired_idle": 196637,
+    "expired_active": 951,
+    "expired_packet_cap": 152,
+    "closed_teardown": 347173,
+    "evicted_capacity": 0,
+    "dropped_short": 0,
+    "absorbed_after_teardown": 134807
+  },
+  "first_ts": 1499428779.599128,
+  "last_ts": 1499457761.169108,
+  "capture_format": "pcapng",
+  "linktypes": {
+    "0": 1
+  },
+  "wall_s": 163.46879000007175,
+  "cpu_user_s": 84.359375,
+  "cpu_sys_s": 0.921875,
+  "pkts_per_s": 61160.75123572892,
+  "mbit_per_s": 432.58699381067765,
+  "flows_per_s": 3334.281730474427,
+  "rss_before_mb": 22.28125,
+  "peak_mb": 33.76953125,
+  "warnings": []
+}

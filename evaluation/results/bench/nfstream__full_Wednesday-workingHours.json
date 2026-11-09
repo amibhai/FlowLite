@@ -1,0 +1,20 @@
+{
+  "tool": "nfstream",
+  "pcap": "pcap/Wednesday-workingHours.pcap",
+  "pcap_bytes": 13420789612,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 143.40500770008657,
+      "cpu_s_lastsample": 33.890625,
+      "peak_rss_mb": 203.921875,
+      "child": {
+        "flows": 494878,
+        "columns": 77
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

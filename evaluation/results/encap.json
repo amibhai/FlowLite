@@ -1,0 +1,70 @@
+{
+ "packets": 248063,
+ "flows": 6195,
+ "fields_compared": 90,
+ "framings": {
+  "Ethernet (re-written)": {
+   "linktype": 1,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "802.1Q VLAN": {
+   "linktype": 1,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "802.1ad QinQ": {
+   "linktype": 1,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "MPLS (2 labels)": {
+   "linktype": 1,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "Raw IP": {
+   "linktype": 101,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "Linux cooked v1": {
+   "linktype": 113,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "Linux cooked v2": {
+   "linktype": 276,
+   "format": "pcap",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "Ethernet, pcapng": {
+   "linktype": 1,
+   "format": "pcapng",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  },
+  "Ethernet, gzip pcap": {
+   "linktype": 1,
+   "format": "gzip",
+   "flows": 6195,
+   "same_flow_ids": true,
+   "differing_values": 0
+  }
+ }
+}

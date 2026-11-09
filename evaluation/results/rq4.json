@@ -1,0 +1,133 @@
+{
+ "flowlite_direction": {
+  "n": 441966,
+  "initiator_forward": 0.989261617409484,
+  "per_class": {
+   "Bot": {
+    "n": 4803,
+    "initiator_forward": 1.0
+   },
+   "DDoS": {
+    "n": 95726,
+    "initiator_forward": 0.9874955602448655
+   },
+   "DoS GoldenEye": {
+    "n": 8786,
+    "initiator_forward": 0.9883906214432051
+   },
+   "DoS Hulk": {
+    "n": 159161,
+    "initiator_forward": 0.985404715979417
+   },
+   "DoS Slowhttptest": {
+    "n": 6042,
+    "initiator_forward": 0.9528301886792453
+   },
+   "DoS slowloris": {
+    "n": 6997,
+    "initiator_forward": 0.9995712448192082
+   },
+   "Heartbleed": {
+    "n": 5,
+    "initiator_forward": 1.0
+   },
+   "PortScan": {
+    "n": 160446,
+    "initiator_forward": 0.9947895242012889
+   }
+  }
+ },
+ "cic_direction": {
+  "n": 581646,
+  "initiator_forward": 0.9315683422562865,
+  "per_class": {
+   "Bot": {
+    "n": 2935,
+    "initiator_forward": 0.7574105621805792
+   },
+   "DDoS": {
+    "n": 159367,
+    "initiator_forward": 0.8033281670609348
+   },
+   "DoS GoldenEye": {
+    "n": 10499,
+    "initiator_forward": 0.9803790837222592
+   },
+   "DoS Hulk": {
+    "n": 236665,
+    "initiator_forward": 0.9763716645891872
+   },
+   "DoS Slowhttptest": {
+    "n": 6126,
+    "initiator_forward": 0.8976493633692458
+   },
+   "DoS slowloris": {
+    "n": 6152,
+    "initiator_forward": 0.9411573472041612
+   },
+   "Heartbleed": {
+    "n": 12,
+    "initiator_forward": 0.9166666666666666
+   },
+   "PortScan": {
+    "n": 159890,
+    "initiator_forward": 0.9939958721621115
+   }
+  }
+ },
+ "cic_benign_but_rule_attack": {
+  "n": 40061,
+  "reversed": 39095,
+  "per_class": {
+   "Bot": {
+    "n": 973,
+    "reversed": 7
+   },
+   "DDoS": {
+    "n": 31340,
+    "reversed": 31340
+   },
+   "DoS GoldenEye": {
+    "n": 206,
+    "reversed": 206
+   },
+   "DoS Hulk": {
+    "n": 5592,
+    "reversed": 5592
+   },
+   "DoS Slowhttptest": {
+    "n": 627,
+    "reversed": 627
+   },
+   "DoS slowloris": {
+    "n": 362,
+    "reversed": 362
+   },
+   "Heartbleed": {
+    "n": 1,
+    "reversed": 1
+   },
+   "PortScan": {
+    "n": 960,
+    "reversed": 960
+   }
+  }
+ },
+ "cic_attack_but_rule_benign": 10,
+ "appendix": {
+  "fri": {
+   "flows_with_grace": 545051,
+   "flows_without_grace": 641638,
+   "absorbed_segments": 134807,
+   "extra_records_without_grace": 96587,
+   "teardown_records": 347173
+  },
+  "wed": {
+   "flows_with_grace": 496467,
+   "flows_without_grace": 754318,
+   "absorbed_segments": 394222,
+   "extra_records_without_grace": 257851,
+   "teardown_records": 267787
+  }
+ }
+}

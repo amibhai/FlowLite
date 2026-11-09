@@ -1,0 +1,34 @@
+{
+  "tool": "flowlite",
+  "pcap": "C:/flowlite_out/synflood_2m.pcap",
+  "pcap_bytes": 140000024,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 218.86690590006765,
+      "cpu_s_lastsample": 161.75,
+      "peak_rss_mb": 625.30078125,
+      "child": {
+        "flows": 2000000,
+        "packets": 2000000,
+        "decoded": 2000000,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 2000000,
+          "in_memory": 0,
+          "expired_idle": 0,
+          "expired_active": 0,
+          "expired_packet_cap": 0,
+          "closed_teardown": 0,
+          "evicted_capacity": 1750000,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 0
+        }
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

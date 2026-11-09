@@ -1,0 +1,20 @@
+{
+  "tool": "prototype",
+  "pcap": "pcap/Friday-WorkingHours.pcap",
+  "pcap_bytes": 8839309056,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 1.456853699986823,
+      "cpu_s_lastsample": 0.046875,
+      "peak_rss_mb": 70.87890625,
+      "child": {
+        "flows": 0,
+        "columns": 0
+      },
+      "stderr_tail": "Cannot open pcap pcap\\Friday-WorkingHours.pcap: invalid tcpdump header\n"
+    }
+  ]
+}

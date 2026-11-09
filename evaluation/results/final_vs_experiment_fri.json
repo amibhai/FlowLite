@@ -1,0 +1,9 @@
+{
+ "rows_old": 545051,
+ "rows_new": 545051,
+ "same_columns": true,
+ "differing_cells_by_column": {
+  "expiry_reason": 30
+ },
+ "rows_with_any_difference": 30
+}

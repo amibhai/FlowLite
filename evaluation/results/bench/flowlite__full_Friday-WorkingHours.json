@@ -1,0 +1,34 @@
+{
+  "tool": "flowlite",
+  "pcap": "pcap/Friday-WorkingHours.pcap",
+  "pcap_bytes": 8839309056,
+  "host": "Windows-11-10.0.22631-SP0",
+  "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "runs": [
+    {
+      "returncode": 0,
+      "wall_s": 167.23538440000266,
+      "cpu_s_lastsample": 131.296875,
+      "peak_rss_mb": 28.60546875,
+      "child": {
+        "flows": 545051,
+        "packets": 9997874,
+        "decoded": 9944187,
+        "columns": 95,
+        "max_flows": 250000,
+        "table_stats": {
+          "emitted": 545051,
+          "in_memory": 0,
+          "expired_idle": 196667,
+          "expired_active": 951,
+          "expired_packet_cap": 152,
+          "closed_teardown": 347173,
+          "evicted_capacity": 0,
+          "dropped_short": 0,
+          "absorbed_after_teardown": 134807
+        }
+      },
+      "stderr_tail": ""
+    }
+  ]
+}

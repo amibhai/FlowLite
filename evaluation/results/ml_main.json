@@ -1,0 +1,1558 @@
+{
+ "FlowLite (all) | RF": {
+  "macro_f1": {
+   "mean": 0.9742409941592651,
+   "std": 0.04453972918437319
+  },
+  "weighted_f1": {
+   "mean": 0.9996755951929567,
+   "std": 1.5215448363675947e-05
+  },
+  "accuracy": {
+   "mean": 0.9996764338012738,
+   "std": 1.4750315293094368e-05
+  },
+  "benign_fpr": {
+   "mean": 6.504855012623786e-05,
+   "std": 8.170918097081664e-06
+  },
+  "attack_dr": {
+   "mean": 0.99976016259251,
+   "std": 4.926053760173297e-05
+  },
+  "fit_s": {
+   "mean": 41.25734101999551,
+   "std": 3.161793903368078
+  },
+  "predict_s": {
+   "mean": 2.6648350200150164,
+   "std": 2.8841649495593034
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998790834670042,
+   "Bot": 0.9891263147389282,
+   "DDoS": 0.9999947768405107,
+   "DoS GoldenEye": 0.9961318996630517,
+   "DoS Hulk": 0.999767516106898,
+   "DoS Slowhttptest": 0.9916692300094823,
+   "DoS slowloris": 0.9918057847562979,
+   "Heartbleed": 0.8,
+   "PortScan": 0.999794341851214
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 74,
+  "n_flows": 1041518,
+  "features": [
+   "protocol",
+   "duration_s",
+   "total_packets",
+   "fwd_packets",
+   "bwd_packets",
+   "total_bytes",
+   "fwd_bytes",
+   "bwd_bytes",
+   "total_frame_bytes",
+   "fwd_frame_bytes",
+   "bwd_frame_bytes",
+   "packets_per_s",
+   "bytes_per_s",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s",
+   "pkt_len_mean",
+   "pkt_len_std",
+   "pkt_len_min",
+   "pkt_len_max",
+   "pkt_len_var",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_min",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_min",
+   "bwd_pkt_len_max",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_min",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_min",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_min",
+   "bwd_iat_max",
+   "active_mean",
+   "active_std",
+   "active_max",
+   "active_count",
+   "idle_mean",
+   "idle_std",
+   "idle_max",
+   "idle_count",
+   "syn_count",
+   "fin_count",
+   "rst_count",
+   "psh_count",
+   "ack_count",
+   "urg_count",
+   "ece_count",
+   "cwr_count",
+   "syn_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "ack_ratio",
+   "urg_ratio",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "tcp_handshake_ms",
+   "ttl_mean",
+   "ttl_std",
+   "ttl_min",
+   "ttl_max",
+   "fragment_packets",
+   "down_up_byte_ratio",
+   "fwd_bwd_packet_ratio",
+   "byte_asymmetry"
+  ]
+ },
+ "FlowLite (all) | ET": {
+  "macro_f1": {
+   "mean": 0.9517840484208323,
+   "std": 0.054527176626420676
+  },
+  "weighted_f1": {
+   "mean": 0.9996588922854036,
+   "std": 1.5522622505774967e-05
+  },
+  "accuracy": {
+   "mean": 0.9996601114800476,
+   "std": 1.5302298348521578e-05
+  },
+  "benign_fpr": {
+   "mean": 9.006727247040361e-05,
+   "std": 1.7009597947772377e-05
+  },
+  "attack_dr": {
+   "mean": 0.9997692130573365,
+   "std": 3.7589238703556774e-05
+  },
+  "fit_s": {
+   "mean": 33.59030288001522,
+   "std": 6.5745008555745015
+  },
+  "predict_s": {
+   "mean": 0.7107634399784729,
+   "std": 0.03515279866423098
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998699081990591,
+   "Bot": 0.9890509126427889,
+   "DDoS": 1.0,
+   "DoS GoldenEye": 0.9959609769222639,
+   "DoS Hulk": 0.9997706568595504,
+   "DoS Slowhttptest": 0.9905090779612744,
+   "DoS slowloris": 0.991088096991559,
+   "Heartbleed": 0.6,
+   "PortScan": 0.9998068062109959
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 74,
+  "n_flows": 1041518,
+  "features": [
+   "protocol",
+   "duration_s",
+   "total_packets",
+   "fwd_packets",
+   "bwd_packets",
+   "total_bytes",
+   "fwd_bytes",
+   "bwd_bytes",
+   "total_frame_bytes",
+   "fwd_frame_bytes",
+   "bwd_frame_bytes",
+   "packets_per_s",
+   "bytes_per_s",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s",
+   "pkt_len_mean",
+   "pkt_len_std",
+   "pkt_len_min",
+   "pkt_len_max",
+   "pkt_len_var",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_min",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_min",
+   "bwd_pkt_len_max",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_min",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_min",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_min",
+   "bwd_iat_max",
+   "active_mean",
+   "active_std",
+   "active_max",
+   "active_count",
+   "idle_mean",
+   "idle_std",
+   "idle_max",
+   "idle_count",
+   "syn_count",
+   "fin_count",
+   "rst_count",
+   "psh_count",
+   "ack_count",
+   "urg_count",
+   "ece_count",
+   "cwr_count",
+   "syn_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "ack_ratio",
+   "urg_ratio",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "tcp_handshake_ms",
+   "ttl_mean",
+   "ttl_std",
+   "ttl_min",
+   "ttl_max",
+   "fragment_packets",
+   "down_up_byte_ratio",
+   "fwd_bwd_packet_ratio",
+   "byte_asymmetry"
+  ]
+ },
+ "FlowLite (no TTL) | RF": {
+  "macro_f1": {
+   "mean": 0.9730734427123657,
+   "std": 0.0446190734009325
+  },
+  "weighted_f1": {
+   "mean": 0.9995010761784373,
+   "std": 4.600522113383257e-05
+  },
+  "accuracy": {
+   "mean": 0.999501688842316,
+   "std": 4.5685121450707815e-05
+  },
+  "benign_fpr": {
+   "mean": 0.000233507532736656,
+   "std": 5.031380354540565e-05
+  },
+  "attack_dr": {
+   "mean": 0.999567840054967,
+   "std": 7.310760390326443e-05
+  },
+  "fit_s": {
+   "mean": 41.0518177599879,
+   "std": 1.1923916202662614
+  },
+  "predict_s": {
+   "mean": 0.6427834400208667,
+   "std": 0.050270308830878824
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9997239724499243,
+   "Bot": 0.9889135062234296,
+   "DDoS": 0.9997701247683496,
+   "DoS GoldenEye": 0.9959019417108287,
+   "DoS Hulk": 0.9997580921713183,
+   "DoS Slowhttptest": 0.9824471248586022,
+   "DoS slowloris": 0.9913768078348394,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9997694143940008
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 70,
+  "n_flows": 1041518,
+  "features": [
+   "protocol",
+   "duration_s",
+   "total_packets",
+   "fwd_packets",
+   "bwd_packets",
+   "total_bytes",
+   "fwd_bytes",
+   "bwd_bytes",
+   "total_frame_bytes",
+   "fwd_frame_bytes",
+   "bwd_frame_bytes",
+   "packets_per_s",
+   "bytes_per_s",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s",
+   "pkt_len_mean",
+   "pkt_len_std",
+   "pkt_len_min",
+   "pkt_len_max",
+   "pkt_len_var",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_min",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_min",
+   "bwd_pkt_len_max",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_min",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_min",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_min",
+   "bwd_iat_max",
+   "active_mean",
+   "active_std",
+   "active_max",
+   "active_count",
+   "idle_mean",
+   "idle_std",
+   "idle_max",
+   "idle_count",
+   "syn_count",
+   "fin_count",
+   "rst_count",
+   "psh_count",
+   "ack_count",
+   "urg_count",
+   "ece_count",
+   "cwr_count",
+   "syn_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "ack_ratio",
+   "urg_ratio",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "tcp_handshake_ms",
+   "fragment_packets",
+   "down_up_byte_ratio",
+   "fwd_bwd_packet_ratio",
+   "byte_asymmetry"
+  ]
+ },
+ "FlowLite (no TTL) | ET": {
+  "macro_f1": {
+   "mean": 0.9728920638049529,
+   "std": 0.044358643973453446
+  },
+  "weighted_f1": {
+   "mean": 0.9994974286755435,
+   "std": 3.2854682238478684e-05
+  },
+  "accuracy": {
+   "mean": 0.9994978483799264,
+   "std": 3.306479614446662e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0002551904337807108,
+   "std": 3.1908148017034536e-05
+  },
+  "attack_dr": {
+   "mean": 0.9996040421190486,
+   "std": 8.157897464405176e-05
+  },
+  "fit_s": {
+   "mean": 31.4750884400215,
+   "std": 0.723091413235693
+  },
+  "predict_s": {
+   "mean": 0.6559945399872958,
+   "std": 0.03388989855186746
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9997264681613176,
+   "Bot": 0.9883139565383745,
+   "DDoS": 0.9997648983335108,
+   "DoS GoldenEye": 0.9962439521882004,
+   "DoS Hulk": 0.999770657254491,
+   "DoS Slowhttptest": 0.9815521111082548,
+   "DoS slowloris": 0.9908746507416545,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9997818799187728
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 70,
+  "n_flows": 1041518,
+  "features": [
+   "protocol",
+   "duration_s",
+   "total_packets",
+   "fwd_packets",
+   "bwd_packets",
+   "total_bytes",
+   "fwd_bytes",
+   "bwd_bytes",
+   "total_frame_bytes",
+   "fwd_frame_bytes",
+   "bwd_frame_bytes",
+   "packets_per_s",
+   "bytes_per_s",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s",
+   "pkt_len_mean",
+   "pkt_len_std",
+   "pkt_len_min",
+   "pkt_len_max",
+   "pkt_len_var",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_min",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_min",
+   "bwd_pkt_len_max",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_min",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_min",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_min",
+   "bwd_iat_max",
+   "active_mean",
+   "active_std",
+   "active_max",
+   "active_count",
+   "idle_mean",
+   "idle_std",
+   "idle_max",
+   "idle_count",
+   "syn_count",
+   "fin_count",
+   "rst_count",
+   "psh_count",
+   "ack_count",
+   "urg_count",
+   "ece_count",
+   "cwr_count",
+   "syn_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "ack_ratio",
+   "urg_ratio",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "tcp_handshake_ms",
+   "fragment_packets",
+   "down_up_byte_ratio",
+   "fwd_bwd_packet_ratio",
+   "byte_asymmetry"
+  ]
+ },
+ "FlowLite prototype subset | RF": {
+  "macro_f1": {
+   "mean": 0.974130440826148,
+   "std": 0.044640057143095095
+  },
+  "weighted_f1": {
+   "mean": 0.9996650704026075,
+   "std": 1.918563199498396e-05
+  },
+  "accuracy": {
+   "mean": 0.9996658722957792,
+   "std": 1.836884380162177e-05
+  },
+  "benign_fpr": {
+   "mean": 8.50634779269036e-05,
+   "std": 1.7009254231978435e-05
+  },
+  "attack_dr": {
+   "mean": 0.999757899969904,
+   "std": 4.9880224153912896e-05
+  },
+  "fit_s": {
+   "mean": 24.84296428000089,
+   "std": 0.5152422266276597
+  },
+  "predict_s": {
+   "mean": 0.5393736600177362,
+   "std": 0.029159733811317996
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998682413941165,
+   "Bot": 0.9883039923135787,
+   "DDoS": 1.0,
+   "DoS GoldenEye": 0.9961314480484335,
+   "DoS Hulk": 0.9997706606102721,
+   "DoS Slowhttptest": 0.9915027675154364,
+   "DoS slowloris": 0.9918056312095158,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9997912263439785
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 35,
+  "n_flows": 1041518,
+  "features": [
+   "duration_s",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_max",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_max",
+   "pkt_len_var",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "active_mean",
+   "idle_mean",
+   "syn_ratio",
+   "ack_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "urg_ratio",
+   "ttl_mean",
+   "ttl_std",
+   "protocol",
+   "fwd_packets",
+   "bwd_packets",
+   "fwd_bytes",
+   "bwd_bytes"
+  ]
+ },
+ "FlowLite prototype subset | ET": {
+  "macro_f1": {
+   "mean": 0.951747659484092,
+   "std": 0.054528000162910616
+  },
+  "weighted_f1": {
+   "mean": 0.9996559692737208,
+   "std": 5.56533317170585e-06
+  },
+  "accuracy": {
+   "mean": 0.9996572310744867,
+   "std": 4.89614765679551e-06
+  },
+  "benign_fpr": {
+   "mean": 9.173516225601455e-05,
+   "std": 1.0548837168423758e-05
+  },
+  "attack_dr": {
+   "mean": 0.9997578999443071,
+   "std": 2.9151721933614617e-05
+  },
+  "fit_s": {
+   "mean": 19.41253015997354,
+   "std": 0.5613784957272344
+  },
+  "predict_s": {
+   "mean": 0.5946443399880081,
+   "std": 0.05933366737988167
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998649050791137,
+   "Bot": 0.9887325996797545,
+   "DDoS": 1.0,
+   "DoS GoldenEye": 0.995961140225136,
+   "DoS Hulk": 0.9997832244103535,
+   "DoS Slowhttptest": 0.9904235684279777,
+   "DoS slowloris": 0.9911598068308523,
+   "Heartbleed": 0.6,
+   "PortScan": 0.9998036907036407
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 35,
+  "n_flows": 1041518,
+  "features": [
+   "duration_s",
+   "flow_iat_mean",
+   "flow_iat_std",
+   "flow_iat_max",
+   "fwd_iat_mean",
+   "fwd_iat_std",
+   "fwd_iat_max",
+   "bwd_iat_mean",
+   "bwd_iat_std",
+   "bwd_iat_max",
+   "fwd_pkt_len_mean",
+   "fwd_pkt_len_std",
+   "fwd_pkt_len_max",
+   "bwd_pkt_len_mean",
+   "bwd_pkt_len_std",
+   "bwd_pkt_len_max",
+   "pkt_len_var",
+   "init_win_fwd",
+   "init_win_bwd",
+   "fwd_min_seg_size",
+   "active_mean",
+   "idle_mean",
+   "syn_ratio",
+   "ack_ratio",
+   "fin_ratio",
+   "rst_ratio",
+   "psh_ratio",
+   "urg_ratio",
+   "ttl_mean",
+   "ttl_std",
+   "protocol",
+   "fwd_packets",
+   "bwd_packets",
+   "fwd_bytes",
+   "bwd_bytes"
+  ]
+ },
+ "NetFlow-observable subset | RF": {
+  "macro_f1": {
+   "mean": 0.9734579236481988,
+   "std": 0.04453399383559199
+  },
+  "weighted_f1": {
+   "mean": 0.9996143597858447,
+   "std": 1.986894554320061e-05
+  },
+  "accuracy": {
+   "mean": 0.9996149850110241,
+   "std": 1.9536689220986002e-05
+  },
+  "benign_fpr": {
+   "mean": 0.00013843671609608667,
+   "std": 2.274736947715822e-05
+  },
+  "attack_dr": {
+   "mean": 0.9997465867544868,
+   "std": 2.2169927297182455e-05
+  },
+  "fit_s": {
+   "mean": 13.29381397999823,
+   "std": 0.38206700325159465
+  },
+  "predict_s": {
+   "mean": 0.5227464000228792,
+   "std": 0.03428820947541568
+  },
+  "per_class_f1": {
+   "BENIGN": 0.999837382453159,
+   "Bot": 0.9839700707394503,
+   "DDoS": 1.0,
+   "DoS GoldenEye": 0.9956777106793352,
+   "DoS Hulk": 0.999751805731021,
+   "DoS Slowhttptest": 0.9909196016418911,
+   "DoS slowloris": 0.9911641690141879,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9998005725747448
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 18,
+  "n_flows": 1041518,
+  "features": [
+   "fwd_packets",
+   "bwd_packets",
+   "fwd_bytes",
+   "bwd_bytes",
+   "duration_s",
+   "protocol",
+   "syn_seen",
+   "fin_seen",
+   "rst_seen",
+   "psh_seen",
+   "ack_seen",
+   "urg_seen",
+   "ttl_min",
+   "ttl_max",
+   "pkt_len_min",
+   "pkt_len_max",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s"
+  ]
+ },
+ "NetFlow-observable subset | ET": {
+  "macro_f1": {
+   "mean": 0.9510985888189349,
+   "std": 0.054560035740712894
+  },
+  "weighted_f1": {
+   "mean": 0.9995985225038642,
+   "std": 2.4749760830202994e-05
+  },
+  "accuracy": {
+   "mean": 0.9995996228065478,
+   "std": 2.459235829215568e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0001484442217253086,
+   "std": 2.9081295106959528e-05
+  },
+  "attack_dr": {
+   "mean": 0.9997397988866691,
+   "std": 2.3731513513085383e-05
+  },
+  "fit_s": {
+   "mean": 11.44575042000506,
+   "std": 0.14470498720910116
+  },
+  "predict_s": {
+   "mean": 0.477835820033215,
+   "std": 0.010754278405267633
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998298765144439,
+   "Bot": 0.9835577056550834,
+   "DDoS": 0.9999895531353653,
+   "DoS GoldenEye": 0.9956792614460742,
+   "DoS Hulk": 0.9997329488770317,
+   "DoS Slowhttptest": 0.9904223732579833,
+   "DoS slowloris": 0.9908750035405081,
+   "Heartbleed": 0.6,
+   "PortScan": 0.9998005769439239
+  },
+  "support": {
+   "BENIGN": 599552,
+   "Bot": 4803,
+   "DDoS": 95726,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 159161,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160446
+  },
+  "n_features": 18,
+  "n_flows": 1041518,
+  "features": [
+   "fwd_packets",
+   "bwd_packets",
+   "fwd_bytes",
+   "bwd_bytes",
+   "duration_s",
+   "protocol",
+   "syn_seen",
+   "fin_seen",
+   "rst_seen",
+   "psh_seen",
+   "ack_seen",
+   "urg_seen",
+   "ttl_min",
+   "ttl_max",
+   "pkt_len_min",
+   "pkt_len_max",
+   "fwd_bytes_per_s",
+   "bwd_bytes_per_s"
+  ]
+ },
+ "NFStream (statistical) | RF": {
+  "macro_f1": {
+   "mean": 0.9483795778118562,
+   "std": 0.05411455167176698
+  },
+  "weighted_f1": {
+   "mean": 0.9994179777695047,
+   "std": 2.420606814319991e-05
+  },
+  "accuracy": {
+   "mean": 0.99941968659078,
+   "std": 2.5220377503881747e-05
+  },
+  "benign_fpr": {
+   "mean": 0.00027430678791233725,
+   "std": 7.005033544280947e-05
+  },
+  "attack_dr": {
+   "mean": 0.9994496077427779,
+   "std": 0.00010434111217553493
+  },
+  "fit_s": {
+   "mean": 26.86997036000248,
+   "std": 0.5182557995576462
+  },
+  "predict_s": {
+   "mean": 0.5851364600006491,
+   "std": 0.018060735562855788
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9996621561603846,
+   "Bot": 0.9715721110358704,
+   "DDoS": 0.9997639476340799,
+   "DoS GoldenEye": 0.9955136294114008,
+   "DoS Hulk": 0.9997256653982601,
+   "DoS Slowhttptest": 0.9778163371697429,
+   "DoS slowloris": 0.9915964116900137,
+   "Heartbleed": 0.6,
+   "PortScan": 0.999765941806954
+  },
+  "support": {
+   "BENIGN": 597871,
+   "Bot": 2199,
+   "DDoS": 93221,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 158597,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160206
+  },
+  "n_features": 58,
+  "n_flows": 1033924,
+  "features": [
+   "protocol",
+   "bidirectional_duration_ms",
+   "bidirectional_packets",
+   "bidirectional_bytes",
+   "src2dst_duration_ms",
+   "src2dst_packets",
+   "src2dst_bytes",
+   "dst2src_duration_ms",
+   "dst2src_packets",
+   "dst2src_bytes",
+   "bidirectional_min_ps",
+   "bidirectional_mean_ps",
+   "bidirectional_stddev_ps",
+   "bidirectional_max_ps",
+   "src2dst_min_ps",
+   "src2dst_mean_ps",
+   "src2dst_stddev_ps",
+   "src2dst_max_ps",
+   "dst2src_min_ps",
+   "dst2src_mean_ps",
+   "dst2src_stddev_ps",
+   "dst2src_max_ps",
+   "bidirectional_min_piat_ms",
+   "bidirectional_mean_piat_ms",
+   "bidirectional_stddev_piat_ms",
+   "bidirectional_max_piat_ms",
+   "src2dst_min_piat_ms",
+   "src2dst_mean_piat_ms",
+   "src2dst_stddev_piat_ms",
+   "src2dst_max_piat_ms",
+   "dst2src_min_piat_ms",
+   "dst2src_mean_piat_ms",
+   "dst2src_stddev_piat_ms",
+   "dst2src_max_piat_ms",
+   "bidirectional_syn_packets",
+   "bidirectional_cwr_packets",
+   "bidirectional_ece_packets",
+   "bidirectional_urg_packets",
+   "bidirectional_ack_packets",
+   "bidirectional_psh_packets",
+   "bidirectional_rst_packets",
+   "bidirectional_fin_packets",
+   "src2dst_syn_packets",
+   "src2dst_cwr_packets",
+   "src2dst_ece_packets",
+   "src2dst_urg_packets",
+   "src2dst_ack_packets",
+   "src2dst_psh_packets",
+   "src2dst_rst_packets",
+   "src2dst_fin_packets",
+   "dst2src_syn_packets",
+   "dst2src_cwr_packets",
+   "dst2src_ece_packets",
+   "dst2src_urg_packets",
+   "dst2src_ack_packets",
+   "dst2src_psh_packets",
+   "dst2src_rst_packets",
+   "dst2src_fin_packets"
+  ]
+ },
+ "NFStream (statistical) | ET": {
+  "macro_f1": {
+   "mean": 0.9479820649331436,
+   "std": 0.054262185222346854
+  },
+  "weighted_f1": {
+   "mean": 0.9993878153935615,
+   "std": 2.680922276188353e-05
+  },
+  "accuracy": {
+   "mean": 0.9993897037256282,
+   "std": 2.759383815019086e-05
+  },
+  "benign_fpr": {
+   "mean": 0.000292705366508419,
+   "std": 6.627428895694601e-05
+  },
+  "attack_dr": {
+   "mean": 0.9994152082283451,
+   "std": 0.00010683195968942269
+  },
+  "fit_s": {
+   "mean": 30.0038880399894,
+   "std": 0.44658740763073473
+  },
+  "predict_s": {
+   "mean": 0.5941280799917876,
+   "std": 0.00717617112610165
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9996404151283599,
+   "Bot": 0.9704702994946605,
+   "DDoS": 0.9997693111457602,
+   "DoS GoldenEye": 0.9951759099124435,
+   "DoS Hulk": 0.9997193609243833,
+   "DoS Slowhttptest": 0.976195725885914,
+   "DoS slowloris": 0.9910953718644502,
+   "Heartbleed": 0.6,
+   "PortScan": 0.9997721900423213
+  },
+  "support": {
+   "BENIGN": 597871,
+   "Bot": 2199,
+   "DDoS": 93221,
+   "DoS GoldenEye": 8786,
+   "DoS Hulk": 158597,
+   "DoS Slowhttptest": 6042,
+   "DoS slowloris": 6997,
+   "Heartbleed": 5,
+   "PortScan": 160206
+  },
+  "n_features": 58,
+  "n_flows": 1033924,
+  "features": [
+   "protocol",
+   "bidirectional_duration_ms",
+   "bidirectional_packets",
+   "bidirectional_bytes",
+   "src2dst_duration_ms",
+   "src2dst_packets",
+   "src2dst_bytes",
+   "dst2src_duration_ms",
+   "dst2src_packets",
+   "dst2src_bytes",
+   "bidirectional_min_ps",
+   "bidirectional_mean_ps",
+   "bidirectional_stddev_ps",
+   "bidirectional_max_ps",
+   "src2dst_min_ps",
+   "src2dst_mean_ps",
+   "src2dst_stddev_ps",
+   "src2dst_max_ps",
+   "dst2src_min_ps",
+   "dst2src_mean_ps",
+   "dst2src_stddev_ps",
+   "dst2src_max_ps",
+   "bidirectional_min_piat_ms",
+   "bidirectional_mean_piat_ms",
+   "bidirectional_stddev_piat_ms",
+   "bidirectional_max_piat_ms",
+   "src2dst_min_piat_ms",
+   "src2dst_mean_piat_ms",
+   "src2dst_stddev_piat_ms",
+   "src2dst_max_piat_ms",
+   "dst2src_min_piat_ms",
+   "dst2src_mean_piat_ms",
+   "dst2src_stddev_piat_ms",
+   "dst2src_max_piat_ms",
+   "bidirectional_syn_packets",
+   "bidirectional_cwr_packets",
+   "bidirectional_ece_packets",
+   "bidirectional_urg_packets",
+   "bidirectional_ack_packets",
+   "bidirectional_psh_packets",
+   "bidirectional_rst_packets",
+   "bidirectional_fin_packets",
+   "src2dst_syn_packets",
+   "src2dst_cwr_packets",
+   "src2dst_ece_packets",
+   "src2dst_urg_packets",
+   "src2dst_ack_packets",
+   "src2dst_psh_packets",
+   "src2dst_rst_packets",
+   "src2dst_fin_packets",
+   "dst2src_syn_packets",
+   "dst2src_cwr_packets",
+   "dst2src_ece_packets",
+   "dst2src_urg_packets",
+   "dst2src_ack_packets",
+   "dst2src_psh_packets",
+   "dst2src_rst_packets",
+   "dst2src_fin_packets"
+  ]
+ },
+ "CICFlowMeter (CIC CSV) | RF": {
+  "macro_f1": {
+   "mean": 0.98112610638156,
+   "std": 0.02198466608326418
+  },
+  "weighted_f1": {
+   "mean": 0.9990505263134336,
+   "std": 4.443422738047404e-05
+  },
+  "accuracy": {
+   "mean": 0.9990515405828087,
+   "std": 4.377453673988241e-05
+  },
+  "benign_fpr": {
+   "mean": 0.000735599176822778,
+   "std": 5.455971404832004e-05
+  },
+  "attack_dr": {
+   "mean": 0.9989925141373384,
+   "std": 0.00011266249870478618
+  },
+  "fit_s": {
+   "mean": 68.90932328000198,
+   "std": 17.26155059162267
+  },
+  "predict_s": {
+   "mean": 1.8325886799721047,
+   "std": 1.2072885384379186
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9992723780950449,
+   "Bot": 0.9575251810018477,
+   "DDoS": 0.9997521135969449,
+   "DoS GoldenEye": 0.9958066343255046,
+   "DoS Hulk": 0.998538329384243,
+   "DoS Slowhttptest": 0.9835483827933105,
+   "DoS slowloris": 0.9960172128849824,
+   "Heartbleed": 0.9,
+   "PortScan": 0.9996747253521615
+  },
+  "support": {
+   "BENIGN": 814302,
+   "Bot": 2935,
+   "DDoS": 159367,
+   "DoS GoldenEye": 10499,
+   "DoS Hulk": 236665,
+   "DoS Slowhttptest": 6126,
+   "DoS slowloris": 6152,
+   "Heartbleed": 12,
+   "PortScan": 159890
+  },
+  "n_features": 78,
+  "n_flows": 1395948,
+  "features": [
+   "Protocol",
+   "Flow Duration",
+   "Total Fwd Packets",
+   "Total Backward Packets",
+   "Total Length of Fwd Packets",
+   "Total Length of Bwd Packets",
+   "Fwd Packet Length Max",
+   "Fwd Packet Length Min",
+   "Fwd Packet Length Mean",
+   "Fwd Packet Length Std",
+   "Bwd Packet Length Max",
+   "Bwd Packet Length Min",
+   "Bwd Packet Length Mean",
+   "Bwd Packet Length Std",
+   "Flow Bytes/s",
+   "Flow Packets/s",
+   "Flow IAT Mean",
+   "Flow IAT Std",
+   "Flow IAT Max",
+   "Flow IAT Min",
+   "Fwd IAT Total",
+   "Fwd IAT Mean",
+   "Fwd IAT Std",
+   "Fwd IAT Max",
+   "Fwd IAT Min",
+   "Bwd IAT Total",
+   "Bwd IAT Mean",
+   "Bwd IAT Std",
+   "Bwd IAT Max",
+   "Bwd IAT Min",
+   "Fwd PSH Flags",
+   "Bwd PSH Flags",
+   "Fwd URG Flags",
+   "Bwd URG Flags",
+   "Fwd Header Length",
+   "Bwd Header Length",
+   "Fwd Packets/s",
+   "Bwd Packets/s",
+   "Min Packet Length",
+   "Max Packet Length",
+   "Packet Length Mean",
+   "Packet Length Std",
+   "Packet Length Variance",
+   "FIN Flag Count",
+   "SYN Flag Count",
+   "RST Flag Count",
+   "PSH Flag Count",
+   "ACK Flag Count",
+   "URG Flag Count",
+   "CWE Flag Count",
+   "ECE Flag Count",
+   "Down/Up Ratio",
+   "Average Packet Size",
+   "Avg Fwd Segment Size",
+   "Avg Bwd Segment Size",
+   "Fwd Header Length.1",
+   "Fwd Avg Bytes/Bulk",
+   "Fwd Avg Packets/Bulk",
+   "Fwd Avg Bulk Rate",
+   "Bwd Avg Bytes/Bulk",
+   "Bwd Avg Packets/Bulk",
+   "Bwd Avg Bulk Rate",
+   "Subflow Fwd Packets",
+   "Subflow Fwd Bytes",
+   "Subflow Bwd Packets",
+   "Subflow Bwd Bytes",
+   "Init_Win_bytes_forward",
+   "Init_Win_bytes_backward",
+   "act_data_pkt_fwd",
+   "min_seg_size_forward",
+   "Active Mean",
+   "Active Std",
+   "Active Max",
+   "Active Min",
+   "Idle Mean",
+   "Idle Std",
+   "Idle Max",
+   "Idle Min"
+  ]
+ },
+ "CICFlowMeter (CIC CSV) | ET": {
+  "macro_f1": {
+   "mean": 0.9717568068327921,
+   "std": 0.02368120043514967
+  },
+  "weighted_f1": {
+   "mean": 0.9985076524696235,
+   "std": 5.1827114079893634e-05
+  },
+  "accuracy": {
+   "mean": 0.9985071077033197,
+   "std": 5.112843171060856e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0015031277839347857,
+   "std": 3.871572908807658e-05
+  },
+  "attack_dr": {
+   "mean": 0.99878276455866,
+   "std": 0.00010949631597949528
+  },
+  "fit_s": {
+   "mean": 94.20082582000177,
+   "std": 29.864124193341706
+  },
+  "predict_s": {
+   "mean": 5.645233960007317,
+   "std": 6.168137174263418
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9988133331649551,
+   "Bot": 0.9434122938348677,
+   "DDoS": 0.9996423505780585,
+   "DoS GoldenEye": 0.995716717461484,
+   "DoS Hulk": 0.9972264562120292,
+   "DoS Slowhttptest": 0.9828113075523,
+   "DoS slowloris": 0.9952026159096855,
+   "Heartbleed": 0.8333333333333333,
+   "PortScan": 0.9996528534484155
+  },
+  "support": {
+   "BENIGN": 814302,
+   "Bot": 2935,
+   "DDoS": 159367,
+   "DoS GoldenEye": 10499,
+   "DoS Hulk": 236665,
+   "DoS Slowhttptest": 6126,
+   "DoS slowloris": 6152,
+   "Heartbleed": 12,
+   "PortScan": 159890
+  },
+  "n_features": 78,
+  "n_flows": 1395948,
+  "features": [
+   "Protocol",
+   "Flow Duration",
+   "Total Fwd Packets",
+   "Total Backward Packets",
+   "Total Length of Fwd Packets",
+   "Total Length of Bwd Packets",
+   "Fwd Packet Length Max",
+   "Fwd Packet Length Min",
+   "Fwd Packet Length Mean",
+   "Fwd Packet Length Std",
+   "Bwd Packet Length Max",
+   "Bwd Packet Length Min",
+   "Bwd Packet Length Mean",
+   "Bwd Packet Length Std",
+   "Flow Bytes/s",
+   "Flow Packets/s",
+   "Flow IAT Mean",
+   "Flow IAT Std",
+   "Flow IAT Max",
+   "Flow IAT Min",
+   "Fwd IAT Total",
+   "Fwd IAT Mean",
+   "Fwd IAT Std",
+   "Fwd IAT Max",
+   "Fwd IAT Min",
+   "Bwd IAT Total",
+   "Bwd IAT Mean",
+   "Bwd IAT Std",
+   "Bwd IAT Max",
+   "Bwd IAT Min",
+   "Fwd PSH Flags",
+   "Bwd PSH Flags",
+   "Fwd URG Flags",
+   "Bwd URG Flags",
+   "Fwd Header Length",
+   "Bwd Header Length",
+   "Fwd Packets/s",
+   "Bwd Packets/s",
+   "Min Packet Length",
+   "Max Packet Length",
+   "Packet Length Mean",
+   "Packet Length Std",
+   "Packet Length Variance",
+   "FIN Flag Count",
+   "SYN Flag Count",
+   "RST Flag Count",
+   "PSH Flag Count",
+   "ACK Flag Count",
+   "URG Flag Count",
+   "CWE Flag Count",
+   "ECE Flag Count",
+   "Down/Up Ratio",
+   "Average Packet Size",
+   "Avg Fwd Segment Size",
+   "Avg Bwd Segment Size",
+   "Fwd Header Length.1",
+   "Fwd Avg Bytes/Bulk",
+   "Fwd Avg Packets/Bulk",
+   "Fwd Avg Bulk Rate",
+   "Bwd Avg Bytes/Bulk",
+   "Bwd Avg Packets/Bulk",
+   "Bwd Avg Bulk Rate",
+   "Subflow Fwd Packets",
+   "Subflow Fwd Bytes",
+   "Subflow Bwd Packets",
+   "Subflow Bwd Bytes",
+   "Init_Win_bytes_forward",
+   "Init_Win_bytes_backward",
+   "act_data_pkt_fwd",
+   "min_seg_size_forward",
+   "Active Mean",
+   "Active Std",
+   "Active Max",
+   "Active Min",
+   "Idle Mean",
+   "Idle Std",
+   "Idle Max",
+   "Idle Min"
+  ]
+ },
+ "FlowLite (all) dedup | RF": {
+  "macro_f1": {
+   "mean": 0.9715912276822738,
+   "std": 0.04436114136607642
+  },
+  "weighted_f1": {
+   "mean": 0.9995837240586365,
+   "std": 2.911475288268384e-05
+  },
+  "accuracy": {
+   "mean": 0.9995850171314584,
+   "std": 2.929553118882859e-05
+  },
+  "benign_fpr": {
+   "mean": 7.101617038333906e-05,
+   "std": 5.614341171687209e-06
+  },
+  "attack_dr": {
+   "mean": 0.9995859376074991,
+   "std": 4.420051022868274e-05
+  },
+  "fit_s": {
+   "mean": 55.65356801999733,
+   "std": 2.412672821094884
+  },
+  "predict_s": {
+   "mean": 1.4121022400213405,
+   "std": 0.35280877005872535
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9998606404000059,
+   "Bot": 0.9780308752620325,
+   "DDoS": 0.9999843234251479,
+   "DoS GoldenEye": 0.9958118929859927,
+   "DoS Hulk": 0.9997957769573249,
+   "DoS Slowhttptest": 0.9879558544181609,
+   "DoS slowloris": 0.9852241069867915,
+   "Heartbleed": 0.8,
+   "PortScan": 0.9976575787050083
+  },
+  "support": {
+   "BENIGN": 563252,
+   "Bot": 2390,
+   "DDoS": 95684,
+   "DoS GoldenEye": 7998,
+   "DoS Hulk": 159143,
+   "DoS Slowhttptest": 5861,
+   "DoS slowloris": 4432,
+   "Heartbleed": 5,
+   "PortScan": 7053
+  },
+  "n_features": 74,
+  "n_flows": 845818,
+  "n_before_dedup": 1041518
+ },
+ "NFStream (statistical) dedup | RF": {
+  "macro_f1": {
+   "mean": 0.9384916038837829,
+   "std": 0.05475871056821419
+  },
+  "weighted_f1": {
+   "mean": 0.9993415338825992,
+   "std": 7.529636896924061e-05
+  },
+  "accuracy": {
+   "mean": 0.9993446177422731,
+   "std": 7.258269608705649e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0004397167706683048,
+   "std": 4.1405310468704776e-05
+  },
+  "attack_dr": {
+   "mean": 0.9993041399316327,
+   "std": 0.00015004060776497126
+  },
+  "fit_s": {
+   "mean": 33.00009676003829,
+   "std": 3.357092647556655
+  },
+  "predict_s": {
+   "mean": 1.1660604399628938,
+   "std": 0.4254874517341962
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9994827299720779,
+   "Bot": 0.956220952526605,
+   "DDoS": 0.9999838832430472,
+   "DoS GoldenEye": 0.9971150324330029,
+   "DoS Hulk": 0.9998606463386525,
+   "DoS Slowhttptest": 0.9565379047214932,
+   "DoS slowloris": 0.9933838799643204,
+   "Heartbleed": 0.6,
+   "PortScan": 0.9438394057548471
+  },
+  "support": {
+   "BENIGN": 309290,
+   "Bot": 1119,
+   "DDoS": 93071,
+   "DoS GoldenEye": 7806,
+   "DoS Hulk": 157875,
+   "DoS Slowhttptest": 2027,
+   "DoS slowloris": 2195,
+   "Heartbleed": 5,
+   "PortScan": 323
+  },
+  "n_features": 58,
+  "n_flows": 573711,
+  "n_before_dedup": 1033924
+ },
+ "CICFlowMeter (CIC CSV) dedup | RF": {
+  "macro_f1": {
+   "mean": 0.974499888582552,
+   "std": 0.015552552218829823
+  },
+  "weighted_f1": {
+   "mean": 0.9985056394474373,
+   "std": 2.5821534976877375e-05
+  },
+  "accuracy": {
+   "mean": 0.9985107572328726,
+   "std": 2.5879432814811383e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0007773154113017383,
+   "std": 0.00010645843131443012
+  },
+  "attack_dr": {
+   "mean": 0.9975193883724767,
+   "std": 0.00020627761501124464
+  },
+  "fit_s": {
+   "mean": 79.26640669994522,
+   "std": 8.282331865688123
+  },
+  "predict_s": {
+   "mean": 1.6256127000087872,
+   "std": 0.6710734621878499
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9989776523190415,
+   "Bot": 0.9349627536980037,
+   "DDoS": 0.9997364121104557,
+   "DoS GoldenEye": 0.995135742371587,
+   "DoS Hulk": 0.9975025999718963,
+   "DoS Slowhttptest": 0.9824522093711764,
+   "DoS slowloris": 0.9953750707036942,
+   "Heartbleed": 0.8933333333333333,
+   "PortScan": 0.9730232233637798
+  },
+  "support": {
+   "BENIGN": 711423,
+   "Bot": 2410,
+   "DDoS": 159356,
+   "DoS GoldenEye": 10492,
+   "DoS Hulk": 178078,
+   "DoS Slowhttptest": 5704,
+   "DoS slowloris": 5407,
+   "Heartbleed": 12,
+   "PortScan": 2161
+  },
+  "n_features": 78,
+  "n_flows": 1075043,
+  "n_before_dedup": 1395948
+ },
+ "CICFlowMeter (CIC CSV, CIC labels) | RF": {
+  "macro_f1": {
+   "mean": 0.9768811093671731,
+   "std": 0.001145699417766622
+  },
+  "weighted_f1": {
+   "mean": 0.99876904465748,
+   "std": 6.999935965751839e-05
+  },
+  "accuracy": {
+   "mean": 0.9987821895995828,
+   "std": 6.60837096736637e-05
+  },
+  "benign_fpr": {
+   "mean": 0.0008930732925075324,
+   "std": 8.933855080430624e-05
+  },
+  "attack_dr": {
+   "mean": 0.9985136494982413,
+   "std": 0.00014943282393891432
+  },
+  "fit_s": {
+   "mean": 63.83312220000662,
+   "std": 19.54229514686126
+  },
+  "predict_s": {
+   "mean": 0.93300161997322,
+   "std": 0.17301270393354912
+  },
+  "per_class_f1": {
+   "BENIGN": 0.9990823693315164,
+   "Bot": 0.8205644615336573,
+   "DDoS": 0.9996758013104463,
+   "DoS GoldenEye": 0.9954323619955441,
+   "DoS Hulk": 0.9985074605095294,
+   "DoS Slowhttptest": 0.9837779130818746,
+   "DoS slowloris": 0.9950815460634386,
+   "Heartbleed": 1.0,
+   "PortScan": 0.9998080704785514
+  },
+  "support": {
+   "BENIGN": 854353,
+   "Bot": 1966,
+   "DDoS": 128027,
+   "DoS GoldenEye": 10293,
+   "DoS Hulk": 231073,
+   "DoS Slowhttptest": 5499,
+   "DoS slowloris": 5796,
+   "Heartbleed": 11,
+   "PortScan": 158930
+  },
+  "n_features": 78
+ }
+}
