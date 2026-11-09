@@ -150,6 +150,10 @@ TCP_URG = 0x20
 TCP_ECE = 0x40
 TCP_CWR = 0x80
 
+# ICMP query/response pairs (RFC 792, RFC 4443): reply type -> request type.
+_ICMP4_REPLY_TO_REQUEST = {0: 8, 14: 13, 16: 15, 18: 17}
+_ICMP6_REPLY_TO_REQUEST = {129: 128}
+
 _U16 = struct.Struct("!H")
 _ETH_HEADER = struct.Struct("!6s6sH")
 _IPV4_HEADER = struct.Struct("!BBHHHBBH4s4s")
@@ -263,7 +267,10 @@ def supported_linktypes() -> Dict[int, str]:
 # --------------------------------------------------------------------------- #
 
 
-def _strip_ethernet(data: bytes) -> Optional[Tuple[int, bytes, int]]:
+_MAX_PBB_NESTING = 2
+
+
+def _strip_ethernet(data: bytes, _nesting: int = 0) -> Optional[Tuple[int, bytes, int]]:
     """Return ``(ethertype, payload, outer_vlan_id)`` for an Ethernet frame."""
     if len(data) < 14:
         return None
@@ -301,9 +308,11 @@ def _strip_ethernet(data: bytes) -> Optional[Tuple[int, bytes, int]]:
             return None
         if ethertype == ETH_PBB:
             # 802.1ah backbone tag: 4-byte I-TAG then a complete inner frame.
-            if len(data) < offset + 4 + 14:
+            # Real networks nest it at most once; a crafted frame could nest it
+            # until the interpreter's recursion limit, so the depth is bounded.
+            if len(data) < offset + 4 + 14 or _nesting >= _MAX_PBB_NESTING:
                 return None
-            inner = _strip_ethernet(data[offset + 4 :])
+            inner = _strip_ethernet(data[offset + 4 :], _nesting + 1)
             if inner is None:
                 return None
             return inner[0], inner[1], vlan_id or inner[2]
@@ -397,7 +406,9 @@ def _strip_radiotap(data: bytes) -> Optional[Tuple[int, bytes, int]]:
 def _strip_ieee80211(data: bytes) -> Optional[Tuple[int, bytes, int]]:
     if len(data) < 24:
         return None
-    frame_control = _U16.unpack_from(data, 0)[0]
+    # Frame Control is little-endian: the first octet carries version, type and
+    # subtype; the second carries the ToDS/FromDS/Retry/... flags.
+    frame_control = data[0]
     ftype = (frame_control >> 2) & 0x03
     if ftype != 2:  # only data frames carry IP
         return None
@@ -475,7 +486,17 @@ def _decode_transport(proto: int, data: bytes) -> Tuple[int, int, int, int, int,
             return proto, 0, 0, 0, 0, len(data)
         # ICMP has no ports; type and code identify the conversation, so they
         # take the port slots. This keeps one flow key shape for all protocols.
-        return proto, data[0], data[1], 0, 0, min(8, len(data))
+        # A reply travels the opposite way to its request, so it gets the
+        # request's (type, code) slots mirrored: request A->B is (A, type, B,
+        # code) and its reply B->A is (B, code, A, type). Both then land on one
+        # bidirectional flow instead of two one-way flows with empty backward
+        # statistics.
+        icmp_type, code = data[0], data[1]
+        pairs = _ICMP4_REPLY_TO_REQUEST if proto == IPPROTO_ICMP else _ICMP6_REPLY_TO_REQUEST
+        request_type = pairs.get(icmp_type)
+        if request_type is not None:
+            return proto, code, request_type, 0, 0, min(8, len(data))
+        return proto, icmp_type, code, 0, 0, min(8, len(data))
     if proto == IPPROTO_GRE:
         if len(data) < 4:
             return proto, 0, 0, 0, 0, len(data)
@@ -504,13 +525,22 @@ def _decode_ipv4(data: bytes, ts: float, frame_len: int, vlan_id: int) -> Option
     if header_len < 20 or header_len > len(data):
         return None
 
-    # total_len is authoritative unless the frame was snapped short.
-    ip_len = total_len if 0 < total_len <= len(data) else len(data)
+    # The header's total_len is the datagram's true size. It bounds the body
+    # (so Ethernet padding and trailers are never counted as payload) and it
+    # still holds when the capture was snapped short, so length features stay
+    # correct on header-only traces. A total_len of 0 (TCP segmentation offload
+    # on the capturing host) or one smaller than the header is not usable, and
+    # the captured length is the best available estimate.
+    if total_len >= header_len and total_len > 0:
+        ip_len = total_len
+    else:
+        ip_len = len(data)
     frag_offset = frag_field & 0x1FFF
     more_fragments = bool(frag_field & 0x2000)
     is_fragment = frag_offset > 0 or more_fragments
 
-    body = data[header_len:ip_len]
+    body = data[header_len : min(ip_len, len(data))]
+    body_len = ip_len - header_len
     if frag_offset > 0:
         # Non-initial fragments carry no transport header.
         return Packet(
@@ -526,13 +556,13 @@ def _decode_ipv4(data: bytes, ts: float, frame_len: int, vlan_id: int) -> Option
             0,
             frame_len,
             ip_len,
-            len(body),
+            body_len,
             vlan_id,
             True,
         )
 
     proto, sport, dport, flags, window, l4_len = _decode_transport(proto, body)
-    payload_len = max(0, len(body) - l4_len)
+    payload_len = max(0, body_len - l4_len)
     return Packet(
         ts,
         _ipv4_str(src_raw),
@@ -563,8 +593,10 @@ def _decode_ipv6(data: bytes, ts: float, frame_len: int, vlan_id: int) -> Option
     src_raw = data[8:24]
     dst_raw = data[24:40]
 
-    declared = 40 + payload_len_field
-    ip_len = declared if 40 < declared <= len(data) else len(data)
+    # As for IPv4, the declared length is authoritative even when the capture
+    # was snapped short. A zero Payload Length (jumbogram, or segmentation
+    # offload on the capturing host) falls back to the captured length.
+    ip_len = 40 + payload_len_field if payload_len_field > 0 else len(data)
 
     offset = 40
     proto = next_header
@@ -596,7 +628,8 @@ def _decode_ipv6(data: bytes, ts: float, frame_len: int, vlan_id: int) -> Option
     if proto == IPPROTO_NONE:
         return None
 
-    body = data[offset:ip_len] if offset < ip_len else b""
+    body = data[offset : min(ip_len, len(data))] if offset < ip_len else b""
+    body_len = max(0, ip_len - offset)
     if frag_offset > 0:
         return Packet(
             ts,
@@ -611,13 +644,13 @@ def _decode_ipv6(data: bytes, ts: float, frame_len: int, vlan_id: int) -> Option
             0,
             frame_len,
             ip_len,
-            len(body),
+            body_len,
             vlan_id,
             True,
         )
 
     proto, sport, dport, flags, window, l4_len = _decode_transport(proto, body)
-    payload = max(0, len(body) - l4_len)
+    payload = max(0, body_len - l4_len)
     return Packet(
         ts,
         _ipv6_str(src_raw),

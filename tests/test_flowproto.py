@@ -154,6 +154,29 @@ class TestNetFlowV5:
 
 
 class TestNetFlowV9AndIpfix:
+    @pytest.mark.parametrize("version", [9, 10])
+    def test_zero_length_template_cannot_hang_the_decoder(self, version):
+        """A 44-byte crafted datagram used to loop forever (remote DoS)."""
+        if version == 9:
+            header = struct.pack("!HHIIII", 9, 2, 3_600_000, 1_700_000_000, 1, 1)
+        else:
+            header = struct.pack("!HHIII", 10, 44, 1_700_000_000, 1, 7)
+        template_set = struct.pack("!HHHHHHHH", 0 if version == 9 else 2, 16, 256, 2, 8, 0, 12, 0)
+        data_set = struct.pack("!HH", 256, 8) + b"\x00" * 4
+        datagram = header + template_set + data_set
+
+        decoder = NetFlowDecoder(TemplateCache())
+        done = threading.Event()
+
+        def run():
+            decoder.decode(datagram, "exporter")
+            done.set()
+
+        worker = threading.Thread(target=run, daemon=True)
+        worker.start()
+        worker.join(timeout=5)
+        assert done.is_set(), "decoder did not return on a zero-length template"
+
     def test_data_before_template_is_counted_not_lost_silently(self):
         decoder = NetFlowDecoder(TemplateCache())
         records = [{"src_ip": "172.16.0.9", "dst_ip": "52.1.2.3", "bytes": 800, "packets": 7}]

@@ -163,6 +163,7 @@ analytics:
     max_flows_in_memory: 250000
     max_packets_per_flow: 20000
     min_packets_per_flow: 1
+    teardown_grace_s: 5.0      # absorb segments trailing a TCP teardown (0 = off)
 
   host_profiles:
     enabled: true

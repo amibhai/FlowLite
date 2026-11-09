@@ -1,11 +1,15 @@
 # Output schema
 
 Every FlowLite CSV is schema-locked: the header is written once and the shape never
-changes within a file. All timestamps are UTC. An empty cell means *not measured*,
-which is deliberately distinct from `0`.
+changes within a file. All timestamps are UTC. In the telemetry files an empty cell means
+*not measured*, which is deliberately distinct from `0`. In `flows.csv` every numeric
+feature is always present: a statistic with nothing to measure (the backward IAT of a
+one-way flow, the handshake time of a flow whose SYN was not seen) is written as `0`, the
+convention ML pipelines expect, and `tcp_state` and the packet counts tell the two cases
+apart.
 
-This page is generated from the field definitions in the code, so it cannot drift from
-what FlowLite actually writes.
+The column names and order below are checked against the code by a test; the
+descriptions are maintained by hand.
 
 | File | Columns | Granularity |
 |---|---|---|
@@ -24,10 +28,22 @@ what FlowLite actually writes.
 A *flow* is a bidirectional conversation keyed on
 `(src_ip, src_port, dst_ip, dst_port, protocol, vlan)`. The endpoint that sent the
 first packet is **forward** (`fwd`) for the whole life of the flow; the other is
-**backward** (`bwd`). ICMP carries no ports, so type and code occupy the port fields.
+**backward** (`bwd`). A conversation cut at the active timeout or packet cap keeps its
+initiator as forward in the continuation record. ICMP carries no ports, so type and code
+occupy the port fields; a query reply (echo, timestamp, information, address mask,
+ICMPv6 echo) is keyed with its request's slots mirrored, so request and reply share a flow.
 
 Records are emitted when a flow ends through TCP teardown, goes idle, exceeds the
-active timeout, hits the packet cap, or the capture ends. `expiry_reason` records which.
+active timeout, hits the packet cap, is evicted at capacity, or the capture ends.
+`expiry_reason` records which. Timeouts are checked against each packet of the flow,
+so boundaries depend only on the packet sequence. Segments trailing a TCP teardown by
+less than `teardown_grace_s` are absorbed rather than emitted as new flows.
+
+Lengths: *payload* is the L4 payload, computed from the IP header's own length field,
+so it excludes Ethernet padding and stays correct on captures taken with a snap length.
+*Frame* bytes are the captured frame bytes, equal to on-the-wire bytes when the capture
+was taken without a snap length. IP fragments are not reassembled: a non-first fragment
+carries no ports and is accounted to a port-0 flow between the same hosts.
 
 | Column | Description |
 |---|---|
@@ -51,10 +67,10 @@ active timeout, hits the packet cap, or the capture ends. `expiry_reason` record
 | `total_packets` | Packets in both directions. |
 | `fwd_packets` | Packets initiator to responder. |
 | `bwd_packets` | Packets responder to initiator. |
-| `total_bytes` | L4 payload bytes, both directions. |
+| `total_bytes` | L4 payload bytes, both directions (from IP header lengths). |
 | `fwd_bytes` | L4 payload bytes forward. |
 | `bwd_bytes` | L4 payload bytes backward. |
-| `total_frame_bytes` | On-the-wire frame bytes, both directions. |
+| `total_frame_bytes` | Captured frame bytes, both directions (on-the-wire bytes without a snap length). |
 | `fwd_frame_bytes` | Frame bytes forward. |
 | `bwd_frame_bytes` | Frame bytes backward. |
 | `packets_per_s` | total_packets / duration (0 when the flow is instantaneous). |
@@ -86,7 +102,7 @@ active timeout, hits the packet cap, or the capture ends. `expiry_reason` record
 | `bwd_iat_std` | Standard deviation of backward gaps. |
 | `bwd_iat_min` | Minimum backward gap. |
 | `bwd_iat_max` | Maximum backward gap. |
-| `active_mean` | Mean duration of active bursts (gaps below `burst_gap_s`). |
+| `active_mean` | Mean duration of active bursts (runs of packets whose gaps do not exceed `burst_gap_s`; a single-packet burst lasts 0). |
 | `active_std` | Standard deviation of burst durations. |
 | `active_max` | Longest active burst. |
 | `active_count` | Number of active bursts. |
@@ -108,20 +124,20 @@ active timeout, hits the packet cap, or the capture ends. `expiry_reason` record
 | `psh_ratio` | psh_count / total_packets. |
 | `ack_ratio` | ack_count / total_packets. |
 | `urg_ratio` | urg_count / total_packets. |
-| `init_win_fwd` | TCP window advertised in the first forward packet. |
-| `init_win_bwd` | TCP window advertised in the first backward packet. |
-| `fwd_min_seg_size` | Smallest non-zero forward payload. |
+| `init_win_fwd` | TCP window field (unscaled) of the first forward packet; 0 if none. |
+| `init_win_bwd` | TCP window field (unscaled) of the first backward packet; 0 if none. |
+| `fwd_min_seg_size` | Smallest non-zero forward payload (unlike CICFlowMeter's header-based `min_seg_size_forward`). |
 | `tcp_handshake_ms` | SYN to SYN-ACK time in milliseconds, 0 when not observed. |
 | `tcp_state` | `syn-sent`, `established`, `closing`, `closed`, `reset`, `ongoing` or `n/a`. |
-| `ttl_mean` | Mean IPv4 TTL or IPv6 hop limit. |
+| `ttl_mean` | Mean IPv4 TTL or IPv6 hop limit, pooled over both directions. |
 | `ttl_std` | Standard deviation of TTL. |
 | `ttl_min` | Minimum TTL. |
 | `ttl_max` | Maximum TTL. |
-| `fragment_packets` | Packets that were IP fragments. |
+| `fragment_packets` | Packets that were IP fragments (in a port-bearing flow: first fragments). |
 | `down_up_byte_ratio` | bwd_bytes / fwd_bytes. |
 | `fwd_bwd_packet_ratio` | fwd_packets / bwd_packets. |
 | `byte_asymmetry` | abs(fwd_bytes - bwd_bytes) / total_bytes. |
-| `src_scope` | Address class of the source: private, public, loopback, link-local, cgnat, multicast, broadcast or reserved. |
+| `src_scope` | Address class of the source: private, public, loopback, link-local, cgnat, multicast, broadcast, reserved or unspecified (0.0.0.0, ::). |
 | `dst_scope` | Address class of the destination. |
 | `dst_asn` | Destination ASN. Requires GeoIP. |
 | `dst_asn_org` | Destination AS organisation. Requires GeoIP. |

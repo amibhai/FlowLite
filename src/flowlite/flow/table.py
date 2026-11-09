@@ -9,10 +9,16 @@ Behaviour that matters, and why:
   timeout the way any real flow exporter does, and if the table still reaches
   its ceiling the least-recently-updated flows are evicted and emitted rather
   than the process being allowed to grow without limit.
-* **Deterministic direction.** The endpoint that sent the first packet of a flow
-  is "forward" for that flow's whole life. Initial TCP window sizes are recorded
-  from the first packet seen *in each direction*, so a capture that starts
-  mid-connection cannot attribute the responder's window to the initiator.
+* **Deterministic boundaries and direction.** Timeouts are evaluated against
+  each packet of the flow, so segmentation depends only on the packet sequence.
+  The endpoint that sent the first packet of a flow is "forward" for that
+  flow's whole life, and a conversation cut at the active timeout or packet cap
+  keeps its initiator as forward in the continuation record. Initial TCP window
+  sizes are recorded from the first packet seen *in each direction*, so a
+  capture that starts mid-connection cannot attribute the responder's window to
+  the initiator.
+* **No TCP appendix records.** Segments trailing a teardown are absorbed for a
+  short grace period instead of becoming one-packet flows.
 * **Timestamps are treated as untrusted.** Merged or reordered captures produce
   negative inter-arrival times; those are clamped to zero instead of poisoning
   every downstream mean and standard deviation.
@@ -95,11 +101,16 @@ class FlowRecord:
         "expiry_reason",
     )
 
-    def __init__(self, packet: Packet) -> None:
-        self.src_ip = packet.src_ip
-        self.src_port = packet.src_port
-        self.dst_ip = packet.dst_ip
-        self.dst_port = packet.dst_port
+    def __init__(self, packet: Packet, reverse: bool = False) -> None:
+        # ``reverse`` starts a record from a packet sent by the responder: a
+        # continuation of a conversation cut at the active timeout or packet
+        # cap keeps its original initiator as the forward endpoint.
+        if reverse:
+            self.src_ip, self.src_port = packet.dst_ip, packet.dst_port
+            self.dst_ip, self.dst_port = packet.src_ip, packet.src_port
+        else:
+            self.src_ip, self.src_port = packet.src_ip, packet.src_port
+            self.dst_ip, self.dst_port = packet.dst_ip, packet.dst_port
         self.protocol = packet.proto
         self.ip_version = packet.ip_version
         self.vlan_id = packet.vlan_id
@@ -303,7 +314,23 @@ def _canonical_key(packet: Packet) -> Tuple[FlowKey, bool]:
 
 
 class FlowTable:
-    """An LRU-bounded table of in-progress flows."""
+    """An LRU-bounded table of in-progress flows.
+
+    Flow boundaries are a function of the packet sequence alone. The idle and
+    active timeouts are checked against each arriving packet of the flow, so a
+    record never spans a silence longer than ``idle_timeout_s`` however little
+    other traffic the capture carries. The periodic sweep only reclaims memory
+    from flows that receive no further packet; it never changes a record's
+    contents.
+
+    After a TCP teardown (FIN in both directions, or a RST) the connection's key
+    is remembered for ``teardown_grace_s``. Segments that arrive in that window
+    without opening a new connection -- the ACK of the last FIN, a RST answering
+    a late segment -- belong to the closed connection and are absorbed and
+    counted instead of being emitted as one- or two-packet records. Such
+    records are the "TCP appendix" artefact reported for CIC-IDS2017 (Engelen et
+    al., 2021). A pure SYN is never absorbed.
+    """
 
     def __init__(
         self,
@@ -315,6 +342,7 @@ class FlowTable:
         min_packets: int = 1,
         max_packets_per_flow: int = 0,
         close_on_teardown: bool = True,
+        teardown_grace_s: float = 5.0,
         on_flow: Optional[Callable[[FlowRecord], None]] = None,
     ) -> None:
         self.active_timeout = float(active_timeout_s)
@@ -324,9 +352,13 @@ class FlowTable:
         self.min_packets = max(1, int(min_packets))
         self.max_packets_per_flow = max(0, int(max_packets_per_flow))
         self.close_on_teardown = close_on_teardown
+        self.teardown_grace = max(0.0, float(teardown_grace_s))
         self.on_flow = on_flow
 
         self._flows: OrderedDict[FlowKey, Tuple[FlowRecord, bool]] = OrderedDict()
+        # key -> time of teardown, oldest first; bounded like the flow map.
+        self._closed: OrderedDict[FlowKey, float] = OrderedDict()
+        self._max_closed = max(1024, self.max_flows // 2)
         self._packets_since_sweep = 0
         self._now = 0.0
 
@@ -337,6 +369,7 @@ class FlowTable:
         self.expired_active = 0
         self.expired_packet_cap = 0
         self.closed_teardown = 0
+        self.absorbed_after_teardown = 0
 
     # -- ingestion --------------------------------------------------------- #
 
@@ -347,14 +380,22 @@ class FlowTable:
 
         entry = self._flows.get(key)
         if entry is None:
-            record = FlowRecord(packet)
-            record.add(packet, True, self.burst_gap)
-            self._flows[key] = (record, is_forward_of_canonical)
-            self._after_insert()
+            if self._closed and self._absorbed_by_closed(key, packet):
+                return
+            self._start(key, packet, is_forward_of_canonical)
             return
 
         record, canonical_is_forward = entry
         forward = is_forward_of_canonical == canonical_is_forward
+
+        if packet.ts - record.last_ts > self.idle_timeout:
+            # The silence already ended the previous flow; this packet opens a
+            # new one, whose sender is its initiator.
+            self._flows.pop(key, None)
+            self.expired_idle += 1
+            self._emit(record, "idle-timeout")
+            self._start(key, packet, is_forward_of_canonical)
+            return
 
         over_active = packet.ts - record.first_ts > self.active_timeout
         over_packets = (
@@ -363,16 +404,17 @@ class FlowTable:
         if over_active or over_packets:
             # Cut a record and start a fresh one for the same key, exactly as a
             # hardware exporter does at its active timeout. The packet cap stops
-            # one elephant flow from dominating every window it touches.
+            # one elephant flow from dominating every window it touches. The
+            # conversation continues, so its initiator stays the forward side.
             self._flows.pop(key, None)
             if over_active:
                 self.expired_active += 1
             else:
                 self.expired_packet_cap += 1
             self._emit(record, "active-timeout" if over_active else "packet-cap")
-            new_record = FlowRecord(packet)
-            new_record.add(packet, True, self.burst_gap)
-            self._flows[key] = (new_record, is_forward_of_canonical)
+            new_record = FlowRecord(packet, reverse=not forward)
+            new_record.add(packet, forward, self.burst_gap)
+            self._flows[key] = (new_record, canonical_is_forward)
             self._after_insert()
             return
 
@@ -383,9 +425,37 @@ class FlowTable:
             self._flows.pop(key, None)
             self.closed_teardown += 1
             self._emit(record, "teardown")
+            self._remember_closed(key, record.last_ts)
             return
 
         self._after_insert()
+
+    def _start(self, key: FlowKey, packet: Packet, is_forward_of_canonical: bool) -> None:
+        record = FlowRecord(packet)
+        record.add(packet, True, self.burst_gap)
+        self._flows[key] = (record, is_forward_of_canonical)
+        self._after_insert()
+
+    def _remember_closed(self, key: FlowKey, ts: float) -> None:
+        if self.teardown_grace <= 0.0:
+            return
+        self._closed[key] = ts
+        self._closed.move_to_end(key)
+        while len(self._closed) > self._max_closed:
+            self._closed.popitem(last=False)
+
+    def _absorbed_by_closed(self, key: FlowKey, packet: Packet) -> bool:
+        """True when ``packet`` is a trailing segment of a connection just torn down."""
+        closed_at = self._closed.get(key)
+        if closed_at is None:
+            return False
+        flags = packet.tcp_flags
+        opens_connection = bool(flags & TCP_SYN) and not flags & TCP_ACK
+        if opens_connection or packet.ts - closed_at > self.teardown_grace:
+            del self._closed[key]
+            return False
+        self.absorbed_after_teardown += 1
+        return True
 
     def _after_insert(self) -> None:
         self._packets_since_sweep += 1
@@ -401,28 +471,50 @@ class FlowTable:
     # -- expiry ------------------------------------------------------------ #
 
     def expire_idle(self, now: Optional[float] = None) -> int:
-        """Emit flows whose last packet is older than the idle timeout."""
+        """Emit flows that have been silent for longer than the idle timeout.
+
+        The boundary matches the per-packet check in :meth:`add_packet`: a flow
+        is idle once ``now - last_ts > idle_timeout``.
+        """
         current = self._now if now is None else now
         cutoff = current - self.idle_timeout
         expired = 0
         # The map is LRU-ordered, so scanning stops at the first fresh flow.
         while self._flows:
             key, (record, _) = next(iter(self._flows.items()))
-            if record.last_ts > cutoff:
+            if record.last_ts >= cutoff:
                 break
             self._flows.pop(key, None)
             expired += 1
             self.expired_idle += 1
             self._emit(record, "idle-timeout")
+        grace_cutoff = current - self.teardown_grace
+        while self._closed:
+            key, closed_at = next(iter(self._closed.items()))
+            if closed_at >= grace_cutoff:
+                break
+            self._closed.popitem(last=False)
         return expired
 
     def flush(self) -> int:
-        """Emit every remaining flow. Called once the capture is exhausted."""
+        """Emit every remaining flow. Called once the capture is exhausted.
+
+        A flow that had already been silent for longer than the idle timeout
+        ended by idling, whether or not a sweep happened to run before the
+        capture ended, so it is labelled ``idle-timeout`` like a swept flow.
+        That keeps ``expiry_reason`` independent of the sweep interval.
+        """
         count = 0
+        cutoff = self._now - self.idle_timeout
         while self._flows:
             _key, (record, _) = self._flows.popitem(last=False)
             count += 1
-            self._emit(record, "end-of-capture")
+            if record.last_ts < cutoff:
+                self.expired_idle += 1
+                self._emit(record, "idle-timeout")
+            else:
+                self._emit(record, "end-of-capture")
+        self._closed.clear()
         return count
 
     def _emit(self, record: FlowRecord, reason: str) -> None:
@@ -454,6 +546,7 @@ class FlowTable:
             "closed_teardown": self.closed_teardown,
             "evicted_capacity": self.evicted_capacity,
             "dropped_short": self.dropped_short,
+            "absorbed_after_teardown": self.absorbed_after_teardown,
         }
 
 
@@ -499,6 +592,7 @@ class PcapFlowExtractor:
         max_flows: int = 250_000,
         min_packets: int = 1,
         max_packets_per_flow: int = 0,
+        teardown_grace_s: float = 5.0,
         logger=None,
     ) -> None:
         self.active_timeout_s = active_timeout_s
@@ -507,6 +601,7 @@ class PcapFlowExtractor:
         self.max_flows = max_flows
         self.min_packets = min_packets
         self.max_packets_per_flow = max_packets_per_flow
+        self.teardown_grace_s = teardown_grace_s
         self.log = logger
 
     def extract(
@@ -540,6 +635,7 @@ class PcapFlowExtractor:
             max_flows=self.max_flows,
             min_packets=self.min_packets,
             max_packets_per_flow=self.max_packets_per_flow,
+            teardown_grace_s=self.teardown_grace_s,
             on_flow=_sink,
         )
 

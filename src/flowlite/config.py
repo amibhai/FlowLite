@@ -154,6 +154,7 @@ DEFAULTS: Dict[str, Any] = {
             "max_flows_in_memory": 250000,
             "max_packets_per_flow": 20000,
             "min_packets_per_flow": 1,
+            "teardown_grace_s": 5.0,
         },
         "host_profiles": {
             "enabled": True,
@@ -281,6 +282,7 @@ _RANGES: Dict[str, Tuple[Optional[float], Optional[float]]] = {
     "analytics.flow.max_flows_in_memory": (100, 50000000),
     "analytics.flow.max_packets_per_flow": (2, 10000000),
     "analytics.flow.min_packets_per_flow": (1, 1000),
+    "analytics.flow.teardown_grace_s": (0, 3600),
     "analytics.host_profiles.window_minutes": (1, 1440),
     "analytics.network_ts.bucket_seconds": (1, 3600),
     "retention.pcap_days": (0, 3650),

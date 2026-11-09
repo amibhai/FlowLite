@@ -499,6 +499,7 @@ class NetFlowDecoder:
         record_length = template.length
 
         while offset < end:
+            before = offset
             if record_length > 0:
                 if offset + record_length > end:
                     break
@@ -507,7 +508,9 @@ class NetFlowDecoder:
                 values, offset = self._read_variable_record(data, offset, end, template)
                 if values is None:
                     break
-            if not values:
+            if not values or offset <= before:
+                # A template whose fields are all zero-length consumes nothing;
+                # without this check one crafted datagram loops forever.
                 break
             row = self._render(
                 values,

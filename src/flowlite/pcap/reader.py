@@ -13,7 +13,8 @@ This reader handles:
   Enhanced/Simple/obsolete Packet Blocks
 * transparent gzip and bzip2 decompression, detected by magic number
 * truncated files -- a capture killed mid-write yields every complete packet and
-  a warning, rather than an exception that discards the whole hour
+  a warning, rather than an exception that discards the whole hour. This holds
+  for gzip/bzip2 files cut short as well as for uncompressed ones.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from __future__ import annotations
 import bz2
 import gzip
 import struct
+import zlib
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -95,11 +97,20 @@ def _open_maybe_compressed(path: Path) -> BinaryIO:
 
 
 class _Buffered:
-    """Exact-length reads over a stream, tracking how much was consumed."""
+    """Exact-length reads over a stream, tracking how much was consumed.
 
-    def __init__(self, stream: BinaryIO) -> None:
+    A gzip or bzip2 stream that ends early raises ``EOFError`` (or a
+    decompressor error) from inside ``read`` instead of returning short. That is
+    the same condition as an uncompressed file cut mid-write, so it is turned
+    into a short read and remembered in ``stream_error``; the callers already
+    treat short reads as truncation.
+    """
+
+    def __init__(self, stream: BinaryIO, compressed: bool = False) -> None:
         self._stream = stream
+        self._compressed = compressed
         self.consumed = 0
+        self.stream_error = ""
 
     def read(self, size: int) -> bytes:
         if size <= 0:
@@ -107,7 +118,17 @@ class _Buffered:
         chunks: List[bytes] = []
         remaining = size
         while remaining > 0:
-            chunk = self._stream.read(remaining)
+            try:
+                chunk = self._stream.read(remaining)
+            except (EOFError, zlib.error) as exc:
+                self.stream_error = str(exc) or type(exc).__name__
+                break
+            except OSError as exc:
+                if not self._compressed:
+                    raise
+                # gzip.BadGzipFile and bz2's "Invalid data stream" are OSErrors.
+                self.stream_error = str(exc) or type(exc).__name__
+                break
             if not chunk:
                 break
             chunks.append(chunk)
@@ -154,7 +175,8 @@ class CaptureFile:
             return
 
         handle = _open_maybe_compressed(self.path)
-        self._stream = _Buffered(handle)
+        compressed = isinstance(handle, (gzip.GzipFile, bz2.BZ2File))
+        self._stream = _Buffered(handle, compressed=compressed)
         try:
             magic = self._stream.read(4)
             if len(magic) < 4:
@@ -175,6 +197,12 @@ class CaptureFile:
                     f"compressed."
                 )
         finally:
+            if self._stream is not None and self._stream.stream_error:
+                self.info.truncated = True
+                self.info.warnings.append(
+                    f"compressed stream ended early ({self._stream.stream_error}); "
+                    f"every complete packet before that point was kept"
+                )
             self.info.bytes_read = self._stream.consumed if self._stream else 0
             self.close()
 

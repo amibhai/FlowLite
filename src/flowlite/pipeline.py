@@ -88,6 +88,7 @@ class PipelineWorker:
             max_flows=flow_cfg.max_flows_in_memory,
             min_packets=flow_cfg.min_packets_per_flow,
             max_packets_per_flow=flow_cfg.max_packets_per_flow,
+            teardown_grace_s=flow_cfg.teardown_grace_s,
             logger=logger,
         )
 

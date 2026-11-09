@@ -4,12 +4,12 @@
 
 **Vendor-neutral network flow telemetry. Any switch, any router, any capture file.**
 
-FlowLite turns packets and device counters into analysis-ready CSV: 95 per-flow features,
+FlowLite turns packets and device counters into analysis-ready CSV: 95-column flow records (73 numeric behavioural features),
 per-host behavioural profiles, and a network-wide time series — from a single command.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-323%20passing-brightgreen)](tests/)
 [![Dependencies](https://img.shields.io/badge/required%20dependencies-none-brightgreen)](#installation)
 
 </div>
@@ -56,7 +56,7 @@ system packages (Zeek, tshark, nfdump, sflowtool). FlowLite assumes none of that
 | **Runs anywhere** | The entire core is Python standard library. No compiler, no `apt install`, no root. Optional extras add SSH password auth and GeoIP. |
 | **Works with any device** | SNMP IF-MIB covers essentially every managed device ever shipped. Vendor APIs are drivers, not assumptions. |
 | **Never assumes a format** | Its own pcap **and pcapng** reader, handling Ethernet, VLAN/QinQ, MPLS, Linux cooked capture, raw IP, PPP and 802.11. |
-| **Bounded by design** | Constant memory per flow, an LRU-capped flow table, bounded collector queues. It cannot be made to exhaust RAM by traffic volume. |
+| **Bounded by design** | Constant memory per flow, an LRU-capped flow table, bounded collector queues. Traffic volume cannot push the flow table past its configured ceiling. |
 | **Fails loudly, degrades safely** | Missing config keys use defaults; unreachable devices are *recorded as unreachable*, never as zeros; a bad capture file fails that file alone. |
 | **Provable** | `flowlite selftest` exercises the whole pipeline on generated data — no switch, no mirror port, no privileges. |
 
@@ -86,12 +86,12 @@ flowlite selftest
 ```
 
 ```
-FlowLite 2.0.0 self-test
+FlowLite 2.1.0 self-test
 
   [ok]  generate synthetic capture  -- 372 packets
   [ok]  read pcap  -- pcap, 372 packets
   [ok]  read pcapng  -- pcapng, 372 packets
-  [ok]  flow extraction  -- 33 flows, 33 host profiles, 1 time buckets
+  [ok]  flow extraction  -- 32 flows, 33 host profiles, 1 time buckets
   [ok]  TCP state tracking  -- 25/25 TCP flows
   [ok]  IPv6 decoding  -- 1 IPv6 flow(s)
   ...
@@ -321,7 +321,9 @@ Design decisions worth knowing about:
   count, and variance stays numerically stable at epoch-scale timestamps where the naive
   formula collapses.
 - **Real flow expiry.** Active timeout, idle timeout, TCP teardown detection and an LRU
-  capacity ceiling — the same model hardware exporters use.
+  capacity ceiling, the model flow exporters use. Timeouts are checked per packet, so the
+  same capture always yields the same records, and segments trailing a TCP teardown are
+  absorbed instead of becoming one-packet "appendix" flows.
 - **True-append CSV with a locked schema.** Writes cost time proportional to the rows
   being written, never to the file already on disk. If a column set ever changes, the old
   file is rotated aside so every CSV on disk stays parseable by a single header.
@@ -337,7 +339,7 @@ More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ```bash
 pip install -e '.[dev]'
-pytest                       # 298 tests
+pytest                       # 323 tests
 pytest --cov=flowlite        # with coverage
 ruff check src tests         # lint
 ruff format src tests        # format
@@ -364,6 +366,13 @@ derived from the wall clock rather than the data, which zeroed every joined colu
 telemetry failures written as rows of zeros indistinguishable from real zeros; and a
 collector whose socket bind failure left it reporting itself healthy while receiving
 nothing. Each of those now has a regression test.
+
+## Paper and evaluation
+
+FlowLite 2.1 is described and evaluated in *FlowLite: A Lightweight, Vendor-Agnostic Flow Feature
+Extractor for Network Intrusion Detection Dataset Generation* (ISEA-ISAP 2027, Springer CCIS). The
+labelling rules, reference implementation, benchmark drivers, classifier experiments and measured
+results are in [`evaluation/`](evaluation/README.md).
 
 ## Licence
 

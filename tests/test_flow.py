@@ -23,7 +23,8 @@ def packet_from(frame: bytes, ts: float):
 
 class TestOnlineStats:
     def test_matches_a_direct_computation(self):
-        values = [random.Random(7).uniform(0, 1000) for _ in range(500)]
+        rng = random.Random(7)
+        values = [rng.uniform(0, 1000) for _ in range(500)]
         stats = OnlineStats()
         for value in values:
             stats.add(value)
@@ -124,6 +125,61 @@ class TestFlowTable:
         assert emitted[0].tcp_state == "closed"
         assert len(table) == 0
 
+    @staticmethod
+    def _closed_connection(table, start=0.0):
+        """SYN, SYN-ACK, ACK, FIN/ACK both ways: torn down at ``start + 0.4``."""
+        steps = [
+            ("10.0.0.1", "10.0.0.2", 1, 2, TCP_SYN),
+            ("10.0.0.2", "10.0.0.1", 2, 1, TCP_SYN | TCP_ACK),
+            ("10.0.0.1", "10.0.0.2", 1, 2, TCP_ACK),
+            ("10.0.0.1", "10.0.0.2", 1, 2, TCP_FIN | TCP_ACK),
+            ("10.0.0.2", "10.0.0.1", 2, 1, TCP_FIN | TCP_ACK),
+        ]
+        for i, (src, dst, sport, dport, flags) in enumerate(steps):
+            frame = synth.make_tcp_frame(src, dst, sport, dport, flags=flags)
+            table.add_packet(packet_from(frame, start + i * 0.1))
+
+    def test_final_ack_after_teardown_is_not_a_new_flow(self):
+        """The CIC-IDS2017 'TCP appendix' artefact: the last ACK must not become a flow."""
+        emitted = []
+        table = FlowTable(on_flow=emitted.append)
+        self._closed_connection(table)
+        final_ack = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, flags=TCP_ACK)
+        table.add_packet(packet_from(final_ack, 0.5))
+        table.flush()
+        assert len(emitted) == 1
+        assert emitted[0].expiry_reason == "teardown"
+        assert table.stats()["absorbed_after_teardown"] == 1
+
+    def test_new_syn_after_teardown_starts_a_new_flow(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append)
+        self._closed_connection(table)
+        syn = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, flags=TCP_SYN)
+        table.add_packet(packet_from(syn, 0.6))
+        table.flush()
+        assert len(emitted) == 2
+        assert emitted[1].tcp_state == "syn-sent"
+
+    def test_segment_after_the_grace_period_is_a_new_flow(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append, teardown_grace_s=2.0)
+        self._closed_connection(table)
+        late = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, flags=TCP_ACK)
+        table.add_packet(packet_from(late, 10.0))
+        table.flush()
+        assert len(emitted) == 2
+        assert table.stats()["absorbed_after_teardown"] == 0
+
+    def test_grace_period_can_be_disabled(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append, teardown_grace_s=0)
+        self._closed_connection(table)
+        final_ack = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, flags=TCP_ACK)
+        table.add_packet(packet_from(final_ack, 0.5))
+        table.flush()
+        assert len(emitted) == 2
+
     def test_reset_marks_the_flow(self):
         emitted = []
         table = FlowTable(on_flow=emitted.append)
@@ -141,6 +197,112 @@ class TestFlowTable:
         table.add_packet(packet_from(synth.make_udp_frame("10.0.0.1", "10.0.0.2", 1, 2), 0.0))
         table.expire_idle(now=100.0)
         assert len(emitted) == 1 and emitted[0].expiry_reason == "idle-timeout"
+
+    def test_idle_gap_splits_the_flow_without_a_sweep(self):
+        """Two packets 200 s apart are two flows at idle=60, however sparse the capture."""
+        emitted = []
+        table = FlowTable(on_flow=emitted.append, idle_timeout_s=60, active_timeout_s=300)
+        table.add_packet(packet_from(synth.make_udp_frame("10.0.0.1", "10.0.0.2", 1, 2), 0.0))
+        table.add_packet(packet_from(synth.make_udp_frame("10.0.0.1", "10.0.0.2", 1, 2), 200.0))
+        table.flush()
+        assert [r.expiry_reason for r in emitted] == ["idle-timeout", "end-of-capture"]
+        assert [r.total_packets for r in emitted] == [1, 1]
+
+    def test_segmentation_does_not_depend_on_the_sweep_interval(self, monkeypatch):
+        import flowlite.flow.table as table_module
+
+        rng = random.Random(3)
+        frames = []
+        ts = 0.0
+        for _ in range(20_000):  # enough packets for the default interval to sweep twice
+            ts += rng.expovariate(1 / 0.5)
+            host = rng.randrange(5)
+            frames.append((ts, synth.make_udp_frame(f"10.0.0.{host}", "10.0.1.1", 1000 + host, 53)))
+
+        def records(sweep_every):
+            monkeypatch.setattr(table_module, "_SWEEP_EVERY_PACKETS", sweep_every)
+            out = []
+            table = FlowTable(on_flow=out.append, idle_timeout_s=2.0, active_timeout_s=30.0)
+            for when, frame in frames:
+                table.add_packet(packet_from(frame, when))
+            table.flush()
+            # Whole rows, expiry_reason included; only the emission order may differ.
+            return sorted(tuple(sorted(flow_record_to_row(r).items())) for r in out)
+
+        assert records(1) == records(97) == records(8192) == records(10**9)
+
+    def test_teardown_tombstones_are_bounded(self):
+        table = FlowTable(max_flows=2048)
+        for i in range(5000):
+            sport = 1024 + i
+            self._closed_connection_on(table, sport, start=i * 0.001)
+        assert len(table._closed) <= max(1024, 2048 // 2)
+
+    @staticmethod
+    def _closed_connection_on(table, sport, start):
+        for i, (fwd, flags) in enumerate(
+            [
+                (True, TCP_SYN),
+                (False, TCP_SYN | TCP_ACK),
+                (True, TCP_FIN | TCP_ACK),
+                (False, TCP_FIN | TCP_ACK),
+            ]
+        ):
+            a, b = ("10.0.0.1", sport), ("10.0.0.2", 80)
+            src, dst = (a, b) if fwd else (b, a)
+            frame = synth.make_tcp_frame(src[0], dst[0], src[1], dst[1], flags=flags)
+            table.add_packet(packet_from(frame, start + i * 1e-5))
+
+    def test_active_and_idle_periods_sum_to_the_duration(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append, idle_timeout_s=1e9, active_timeout_s=1e9)
+        rng = random.Random(11)
+        ts = 0.0
+        for _ in range(400):
+            ts += rng.choice([0.01, 0.2, 1.5, 3.0])
+            table.add_packet(packet_from(synth.make_udp_frame("10.0.0.1", "10.0.0.2", 1, 2), ts))
+        table.flush()
+        (rec,) = emitted
+        assert rec.active.sum + rec.idle.sum == pytest.approx(rec.duration)
+        assert rec.active.count == rec.idle.count + 1
+
+    def test_continuation_keeps_the_initiator_forward(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append, active_timeout_s=10, idle_timeout_s=60)
+        table.add_packet(packet_from(synth.make_udp_frame("10.0.0.1", "10.0.0.2", 1, 2), 0.0))
+        table.add_packet(packet_from(synth.make_udp_frame("10.0.0.2", "10.0.0.1", 2, 1), 5.0))
+        # The responder's next packet arrives after the active timeout.
+        table.add_packet(packet_from(synth.make_udp_frame("10.0.0.2", "10.0.0.1", 2, 1), 11.0))
+        table.flush()
+        assert [r.expiry_reason for r in emitted] == ["active-timeout", "end-of-capture"]
+        continuation = emitted[1]
+        assert (continuation.src_ip, continuation.dst_ip) == ("10.0.0.1", "10.0.0.2")
+        assert (continuation.fwd_packets, continuation.bwd_packets) == (0, 1)
+
+    @pytest.mark.parametrize("request_type, reply_type", [(8, 0), (13, 14), (15, 16), (17, 18)])
+    def test_icmp_request_and_reply_form_one_flow(self, request_type, reply_type):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append)
+        for when, (src, dst, icmp_type) in enumerate(
+            [("10.0.0.1", "10.0.0.2", request_type), ("10.0.0.2", "10.0.0.1", reply_type)]
+        ):
+            packet = synth.ipv4_packet(src, dst, 1, synth.icmp_message(icmp_type, 0, b"x" * 56))
+            table.add_packet(packet_from(synth.ethernet_frame(packet), when * 0.01))
+        table.flush()
+        assert len(emitted) == 1
+        assert (emitted[0].fwd_packets, emitted[0].bwd_packets) == (1, 1)
+
+    def test_icmpv6_echo_request_and_reply_form_one_flow(self):
+        emitted = []
+        table = FlowTable(on_flow=emitted.append)
+        for when, (src, dst, icmp_type) in enumerate(
+            [("2001:db8::1", "2001:db8::2", 128), ("2001:db8::2", "2001:db8::1", 129)]
+        ):
+            ip6 = synth.ipv6_packet(src, dst, 58, synth.icmp_message(icmp_type, 0, b"x" * 56))
+            table.add_packet(packet_from(synth.ethernet_frame(ip6, 0x86DD), when * 0.01))
+        table.flush()
+        assert len(emitted) == 1
+        assert (emitted[0].fwd_packets, emitted[0].bwd_packets) == (1, 1)
 
     def test_active_timeout_cuts_a_long_flow(self):
         emitted = []

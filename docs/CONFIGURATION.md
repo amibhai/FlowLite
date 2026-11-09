@@ -275,12 +275,13 @@ sudo ufw allow 2055/udp
 
 | Key | Default | Notes |
 |---|---|---|
-| `active_timeout_s` | `300` | Cut long-lived flows into records of this length. |
-| `idle_timeout_s` | `60` | Close a flow after this much silence. |
+| `active_timeout_s` | `300` | Cut long-lived flows into records at most this long. The continuation record keeps the original initiator as forward. |
+| `idle_timeout_s` | `60` | A packet arriving more than this long after the flow's previous packet starts a new flow. Checked per packet, so flow boundaries do not depend on how busy the capture is. |
 | `burst_gap_s` | `1.0` | Gap that separates an active burst from idle time. |
 | `max_flows_in_memory` | `250000` | Hard ceiling. Excess is evicted, not dropped. |
 | `max_packets_per_flow` | `20000` | Cut a flow record at this many packets. |
 | `min_packets_per_flow` | `1` | Discard flows below this size. |
+| `teardown_grace_s` | `5.0` | After a TCP teardown (FIN both ways, or RST), segments on the same connection that arrive within this window and do not open a new connection (no bare SYN) are absorbed and counted in `absorbed_after_teardown`, instead of becoming one-packet "TCP appendix" flows. `0` disables it. |
 
 For **offline analysis**, raise the timeouts so flows stay whole:
 
@@ -291,7 +292,7 @@ analytics:
     idle_timeout_s: 3600
 ```
 
-For **live monitoring**, the defaults match what hardware exporters do.
+For **live monitoring**, the defaults follow the active/idle timeout model of flow exporters (RFC 7011 terminology); exporter defaults differ by vendor, so set them explicitly when you need records comparable with a specific exporter.
 
 ### `analytics.host_profiles` and `analytics.network_ts`
 

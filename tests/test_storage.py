@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import threading
 from pathlib import Path
 
@@ -35,8 +36,10 @@ class TestAppendSemantics:
 
     def test_reopening_continues_the_same_file(self, tmp_path: Path):
         path = tmp_path / "out.csv"
-        CsvSink(path, ["a"]).write_row({"a": 1})
-        CsvSink(path, ["a"]).write_row({"a": 2})
+        with CsvSink(path, ["a"]) as sink:
+            sink.write_row({"a": 1})
+        with CsvSink(path, ["a"]) as sink:
+            sink.write_row({"a": 2})
         assert [r["a"] for r in read_csv_rows(path)] == ["1", "2"]
 
     def test_missing_and_extra_keys_are_handled(self, tmp_path: Path):
@@ -62,8 +65,10 @@ class TestAppendSemantics:
 class TestSchemaLocking:
     def test_changed_schema_rotates_instead_of_corrupting(self, tmp_path: Path):
         path = tmp_path / "out.csv"
-        CsvSink(path, ["a", "b"]).write_row({"a": 1, "b": 2})
-        CsvSink(path, ["a", "b", "c"]).write_row({"a": 3, "b": 4, "c": 5})
+        with CsvSink(path, ["a", "b"]) as sink:
+            sink.write_row({"a": 1, "b": 2})
+        with CsvSink(path, ["a", "b", "c"]) as sink:
+            sink.write_row({"a": 3, "b": 4, "c": 5})
 
         rows = read_csv_rows(path)
         assert rows == [{"a": "3", "b": "4", "c": "5"}]
@@ -73,15 +78,32 @@ class TestSchemaLocking:
 
     def test_error_mode_raises(self, tmp_path: Path):
         path = tmp_path / "out.csv"
-        CsvSink(path, ["a"]).write_row({"a": 1})
-        with pytest.raises(SchemaMismatch):
-            CsvSink(path, ["b"], on_schema_change="error").write_row({"b": 2})
+        with CsvSink(path, ["a"]) as sink:
+            sink.write_row({"a": 1})
+        with pytest.raises(SchemaMismatch), CsvSink(path, ["b"], on_schema_change="error") as sink:
+            sink.write_row({"b": 2})
+
+    @pytest.mark.skipif(os.name != "nt", reason="only Windows refuses to rename an open file")
+    def test_failed_rotation_raises_instead_of_appending(self, tmp_path: Path, monkeypatch):
+        import flowlite.storage.csvsink as csvsink
+
+        monkeypatch.setattr(csvsink, "_RETRY_DELAYS", (0.0,))
+        path = tmp_path / "out.csv"
+        with CsvSink(path, ["a", "b"]) as sink:
+            sink.write_row({"a": 1, "b": 2})
+        # Nested rather than parenthesised: FlowLite still supports Python 3.9.
+        with path.open(encoding="utf-8"), pytest.raises(OSError, match="could not rotate"):  # noqa: SIM117
+            with CsvSink(path, ["a"]) as sink:
+                sink.write_row({"a": 3})
+        assert read_csv_rows(path) == [{"a": "1", "b": "2"}]
 
     def test_every_file_has_exactly_one_header(self, tmp_path: Path):
         """The bug this prevents: rows of differing width in one file."""
         path = tmp_path / "out.csv"
-        CsvSink(path, ["a", "b"]).write_row({"a": 1, "b": 2})
-        CsvSink(path, ["a"]).write_row({"a": 3})
+        with CsvSink(path, ["a", "b"]) as sink:
+            sink.write_row({"a": 1, "b": 2})
+        with CsvSink(path, ["a"]) as sink:
+            sink.write_row({"a": 3})
         for target in [path, *tmp_path.glob("out.*.csv")]:
             with target.open(encoding="utf-8", newline="") as handle:
                 widths = {len(row) for row in csv.reader(handle)}

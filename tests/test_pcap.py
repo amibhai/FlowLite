@@ -72,6 +72,28 @@ class TestReader:
         assert 0 < len(read) < len(packets)
         assert info.truncated
 
+    def test_truncated_gzip_yields_complete_packets(self, tmp_path, packets):
+        path = tmp_path / "cut.pcap.gz"
+        raw = tmp_path / "whole.pcap"
+        synth.write_pcap(raw, packets)
+        whole = gzip.compress(raw.read_bytes())
+        path.write_bytes(whole[: len(whole) // 2])
+        got, info = read_packets(path)
+        assert 0 < len(got) < len(packets)
+        assert info.truncated
+
+    def test_truncated_bzip2_yields_complete_packets(self, tmp_path, packets):
+        import bz2
+
+        raw = tmp_path / "whole.pcap"
+        synth.write_pcap(raw, packets)
+        whole = bz2.compress(raw.read_bytes())
+        path = tmp_path / "cut.pcap.bz2"
+        path.write_bytes(whole[: int(len(whole) * 0.8)])
+        got, info = read_packets(path)
+        assert len(got) < len(packets)
+        assert info.truncated
+
     def test_empty_file_is_not_an_error(self, tmp_path):
         path = tmp_path / "empty.pcap"
         path.touch()
@@ -190,6 +212,42 @@ class TestNetworkLayer:
         icmp = synth.ipv4_packet("10.0.0.1", "10.0.0.2", IPPROTO_ICMP, synth.icmp_message(8, 0))
         packet = decode_packet(1.0, synth.ethernet_frame(icmp), DLT_EN10MB)
         assert packet is not None and (packet.src_port, packet.dst_port) == (8, 0)
+
+    def test_icmp_reply_mirrors_its_request_slots(self):
+        reply = synth.ipv4_packet("10.0.0.2", "10.0.0.1", IPPROTO_ICMP, synth.icmp_message(0, 0))
+        packet = decode_packet(1.0, synth.ethernet_frame(reply), DLT_EN10MB)
+        assert packet is not None and (packet.src_port, packet.dst_port) == (0, 8)
+
+    def test_payload_length_survives_snaplen_truncation(self):
+        """A header-only capture must still report the true payload size."""
+        frame = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, b"z" * 1460, TCP_ACK)
+        packet = decode_packet(1.0, frame[:96], DLT_EN10MB)
+        assert packet is not None
+        assert packet.payload_len == 1460
+        assert packet.frame_len == 96
+
+    def test_ethernet_padding_is_not_payload(self):
+        frame = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, b"", TCP_ACK)
+        padded = frame + b"\x00" * (60 - len(frame))
+        packet = decode_packet(1.0, padded, DLT_EN10MB)
+        assert packet is not None and packet.payload_len == 0 and packet.frame_len == 60
+
+    def test_80211_data_frame(self):
+        ip = synth.ipv4_packet("10.0.0.1", "10.0.0.2", IPPROTO_UDP, synth.udp_datagram(5, 53))
+        header = bytes([0x08, 0x01]) + b"\x00\x00" + b"\x02" * 18 + b"\x00\x00"  # data, ToDS
+        snap = bytes([0xAA, 0xAA, 0x03, 0, 0, 0]) + struct.pack("!H", ETH_IPV4)
+        packet = decode_packet(1.0, header + snap + ip, 105)
+        assert packet is not None and packet.dst_port == 53
+
+    def test_80211_management_frame_is_not_data(self):
+        ip = synth.ipv4_packet("10.0.0.1", "10.0.0.2", IPPROTO_UDP, synth.udp_datagram(5, 53))
+        header = bytes([0x80, 0x08]) + b"\x00\x00" + b"\x02" * 18 + b"\x00\x00"  # beacon, Retry
+        snap = bytes([0xAA, 0xAA, 0x03, 0, 0, 0]) + struct.pack("!H", ETH_IPV4)
+        assert decode_packet(1.0, header + snap + ip, 105) is None
+
+    def test_deeply_nested_pbb_returns_none(self):
+        frame = b"\x02" * 12 + (struct.pack("!H", 0x88E7) + b"\x00" * 4 + b"\x02" * 12) * 3000
+        assert decode_packet(1.0, frame, DLT_EN10MB) is None
 
     def test_payload_length_excludes_headers(self):
         frame = synth.make_tcp_frame("10.0.0.1", "10.0.0.2", 1, 2, b"z" * 300, TCP_ACK)

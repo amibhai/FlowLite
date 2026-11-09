@@ -103,43 +103,73 @@ src/flowlite/
 
 Every statistic is maintained incrementally with
 [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance).
-A flow costs a fixed number of floats no matter how many packets it carries.
+A flow's state is constant no matter how many packets it carries: nine accumulators
+(payload length, inter-arrival time and TTL, burst and idle durations) plus a few
+counters, about 2.2 KB per flow under 64-bit CPython. At the default ceiling of 250,000
+flows the flow table is therefore bounded at roughly half a gigabyte, whatever the
+packet volume.
 
-This is not only a memory question. The naive "sum of squares minus square of sums"
-variance formula loses all precision at epoch-scale magnitudes and can return a negative
-variance for timestamps near 1.7 × 10⁹. Welford stays stable, and there is a regression
-test for exactly that case.
+Welford is also the numerically safe choice. The naive "sum of squares minus square of
+sums" variance formula cancels catastrophically when the values are large relative to
+their spread, and can even return a negative variance. Welford stays stable, and there is
+a regression test for exactly that case.
 
 ### Bounded flow count
 
-Flows live in an LRU-ordered map with four exits:
+Flows live in an LRU-ordered map with six exits:
 
 | Exit | Trigger | `expiry_reason` |
 |---|---|---|
 | Teardown | TCP FIN both ways, or RST | `teardown` |
-| Idle timeout | No packet for `idle_timeout_s` of capture time | `idle-timeout` |
-| Active timeout | Flow older than `active_timeout_s` | `active-timeout` |
+| Idle timeout | The flow's next packet arrives more than `idle_timeout_s` after its previous one, or the flow has been silent that long when the table is swept or flushed | `idle-timeout` |
+| Active timeout | A packet arrives more than `active_timeout_s` after the flow's first packet | `active-timeout` |
 | Packet cap | Flow reaches `max_packets_per_flow` | `packet-cap` |
 | Capacity | Table at `max_flows_in_memory`; least-recently-updated evicted | `capacity` |
 | End of capture | File exhausted | `end-of-capture` |
 
-Because the map is LRU-ordered, the idle sweep stops at the first flow that is still
-fresh — cost is proportional to what actually expires, not to the table size.
+Timeouts are evaluated against each arriving packet of the flow, so **flow boundaries are
+a function of the packet sequence alone**: the same capture always yields the same
+records, however much unrelated traffic surrounds a flow. A test runs the same traffic
+with the sweep every packet, every 8,192 packets and never, and checks that the rows,
+`expiry_reason` included, are identical (for a time-ordered capture whose table stays
+below its ceiling). The sweep only reclaims memory from flows that are already idle.
+Because the map is LRU-ordered, it stops at the first flow that is still fresh, so its
+cost is proportional to what actually expires, not to the table size.
+
+### No TCP appendix records
+
+After a teardown, the connection's key is remembered for `teardown_grace_s` (5 s by
+default). Segments that arrive in that window without opening a new connection -- the
+ACK of the last FIN, or a RST answering a late segment -- are absorbed and counted in
+`absorbed_after_teardown` instead of becoming one- or two-packet flows of their own. Such
+records are the "TCP appendix" artefact Engelen et al. found throughout the
+CICFlowMeter-generated CIC-IDS2017 data. A bare SYN is never absorbed, so scans and
+connection reuse are unaffected. The tombstones are bounded like the flow map.
 
 A scan producing 3,000 distinct flows against a table capped at 100 still emits all 3,000
 records; it just never holds more than 100 at once. There is a test for that.
 
 ### Direction is decided once
 
-The endpoint that sent the first packet is *forward* for the flow's whole life. Initial
-TCP windows are recorded from the first packet observed **in each direction**, so a
-capture that begins mid-connection cannot attribute the responder's window to the
-initiator — a real bug in the previous implementation.
+The endpoint that sent the first packet is *forward* for the flow's whole life. When a
+long conversation is cut at the active timeout or the packet cap, the continuation
+record keeps the original initiator as forward, even if the responder sent the packet
+that opened it. A flow that ends by idle timeout or capacity eviction is over; whoever
+sends the next packet initiates a new one. Initial TCP windows are recorded from the
+first packet observed **in each direction**, so a capture that begins mid-connection
+cannot attribute the responder's window to the initiator — a real bug in the previous
+implementation.
+
+ICMP has no ports, so type and code take the port slots. For query messages (echo,
+timestamp, information and address-mask requests, and ICMPv6 echo) the reply is keyed
+with its request's slots mirrored, so a request and its reply form one bidirectional flow.
 
 ### Untrusted timestamps
 
 Merged or reordered captures produce negative inter-arrival times. Those are clamped to
 zero rather than being allowed to poison every downstream mean and standard deviation.
+Expiry still assumes capture time moves forward: sort merged captures first (for example
+with `reordercap`), because a single far-future timestamp would advance the sweep's clock.
 
 ---
 

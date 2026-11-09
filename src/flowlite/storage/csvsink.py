@@ -169,13 +169,24 @@ class CsvSink:
             target = self.path.with_name(f"{self.path.stem}.{stamp}-{counter}{self.path.suffix}")
             counter += 1
         self._close_handle()
+        last_error: Optional[OSError] = None
         for delay in _RETRY_DELAYS + (0,):
             try:
                 os.replace(str(self.path), str(target))
                 break
-            except OSError:
+            except OSError as exc:
+                last_error = exc
                 if delay:
                     time.sleep(delay)
+        else:
+            # Appending under the old header would corrupt the file, which is
+            # exactly what rotation exists to prevent, so fail loudly instead.
+            # On Windows this happens when another process (a spreadsheet, an
+            # unclosed writer) holds the file open.
+            raise OSError(
+                f"could not rotate {self.path} aside ({reason}); refusing to append rows "
+                f"that do not match its header: {last_error}"
+            )
         self._prune_backups()
         return target
 
