@@ -319,15 +319,18 @@ class Supervisor:
                         delay,
                     )
                     worker.start(self.stop_event, self.log)
-                elif worker.max_restarts and worker.restarts >= worker.max_restarts:
-                    if worker.critical:
-                        self.log.error(
-                            "%s exceeded runtime.max_restarts (%d); stopping FlowLite",
-                            worker.name,
-                            worker.max_restarts,
-                        )
-                        self._exit_code = 1
-                        self.request_stop()
+                elif (
+                    worker.max_restarts
+                    and worker.restarts >= worker.max_restarts
+                    and worker.critical
+                ):
+                    self.log.error(
+                        "%s exceeded runtime.max_restarts (%d); stopping FlowLite",
+                        worker.name,
+                        worker.max_restarts,
+                    )
+                    self._exit_code = 1
+                    self.request_stop()
 
             if self.health_path is not None and time.monotonic() - last_health > 10:
                 last_health = time.monotonic()
